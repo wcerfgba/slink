@@ -6,26 +6,12 @@
 // @grant       none
 // ==/UserScript==
 
-var lastSelection = null;
-function pollSelection() {
-  console.log('----- BEGIN slink pollSelection() -----');
-  var selection = selectionCopy(window.getSelection());
-  if (!lastSelection) {
-    lastSelection = selection;
-    return;
-  }
-  if (selectionEqual(selection, lastSelection)) {
-    return;
-  }
-  lastSelection = selection;
+function slink() {
+  var selection = window.getSelection();
   pointers = selectionToPointers(selection);
-  
-
-  var eval = document.evaluate(pointers.start.path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-  console.log(pointers.start.path, eval);
-  console.log('----- END slink pollSelection() -----');
+  highlight(pointers);
 }
-window.setInterval(pollSelection, 1000);
+unsafeWindow.slink = slink;
 
 function selectionCopy(selection) {
   return { anchorNode: selection.anchorNode,
@@ -68,6 +54,8 @@ function getXPathForElement(el) {
       xpath = el.nodeName + '[position()=' + pos + 
                              (el.id ? ' and @id="' + el.id + '"': '') + ']' +
                             '/' + xpath;
+    } else {
+      xpath = 'text()/' + xpath;
     }
 
     el = el.parentNode;
@@ -78,4 +66,44 @@ function getXPathForElement(el) {
 }
 
 function requestSlink(location, pointers) {
+}
+
+function highlight(pointers) {
+  var highlight = document.createElement('span');
+  highlight.style.background = 'yellow';
+  highlight.style.padding = '2';
+
+  var startEl = document.evaluate(pointers.start.path, document, null,
+                                  XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+                        .singleNodeValue;
+  var endEl = document.evaluate(pointers.end.path, document, null,
+                                XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+                      .singleNodeValue;
+
+  if (startEl.isEqualNode(endEl) && startEl.nodeType === 3) {
+    startEl = startEl.splitText(pointers.start.offset);
+    endEl = startEl.splitText(pointers.end.offset - pointers.start.offset);
+  } else {
+    if (startEl.nodeType === 3) {
+      startEl = startEl.splitText(pointers.start.offset);
+    }
+    if (endEl.nodeType === 3) {
+      endEl.splitText(pointers.end.offset);
+    }
+  }
+
+  var next = startEl;
+  while (next && !next.isEqualNode(endEl)) {
+    var old = next;
+    highlight.appendChild(next.cloneNode());
+    while (!next.nextSibling && next.parentNode) {
+      next = next.parentNode;
+    }
+    if (next.nextSibling) {
+      next = next.nextSibling;
+    }
+    old.parentNode.removeChild(old);
+  }
+
+  endEl.parentNode.insertBefore(highlight, endEl);
 }
