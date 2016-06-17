@@ -18,7 +18,11 @@ function pollSelection() {
     return;
   }
   lastSelection = selection;
-  console.log(selectionToPointers(selection).start.path);
+  pointers = selectionToPointers(selection);
+  
+
+  var eval = document.evaluate(pointers.start.path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+  console.log(pointers.start.path, eval);
   console.log('----- END slink pollSelection() -----');
 }
 window.setInterval(pollSelection, 1000);
@@ -59,18 +63,19 @@ function getXPathForElement(el) {
       }
       tempitem2 = tempitem2.previousSibling;
     }
-    
-    xpath = "*[name()='"+el.nodeName+
-            "' and id()='"+(el.id===null?'':el.id)+"']["+pos+']'+'/'+xpath;
+   
+    if (el.nodeType !== 3) { 
+      xpath = el.nodeName + '[position()=' + pos + 
+                             (el.id ? ' and @id="' + el.id + '"': '') + ']' +
+                            '/' + xpath;
+    }
 
     el = el.parentNode;
   }
-  xpath = '/*'+"[name()='"+xml.nodeName+
-          "' and id()='"+(el.id===null?'':el.id)+"']"+'/'+xpath;
+  xpath = '/' + xpath;
   xpath = xpath.replace(/\/$/, '');
   return xpath;
 }
 
 function requestSlink(location, pointers) {
 }
-
