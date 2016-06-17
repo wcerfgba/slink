@@ -6,18 +6,41 @@
 // @grant       none
 // ==/UserScript==
 
-function poll() {
-  console.log('----- BEGIN slink -----');
-  console.log(getSelection());
-  console.log('----- END slink -----');
+var lastSelection = null;
+function pollSelection() {
+  console.log('----- BEGIN slink pollSelection() -----');
+  var selection = selectionCopy(window.getSelection());
+  if (!lastSelection) {
+    lastSelection = selection;
+    return;
+  }
+  if (selectionEqual(selection, lastSelection)) {
+    return;
+  }
+  lastSelection = selection;
+  console.log(selection);
+  console.log('----- END slink pollSelection() -----');
 }
-window.setInterval(poll, 1000);
+window.setInterval(pollSelection, 1000);
 
-function getSelection () {
-  var selection = window.getSelection();
-  var start = getPathTo(selection.anchorNode.parentNode);
-  var end = getPathTo(selection.focusNode.parentNode);
-  return { start: start, end: end };
+function selectionCopy(selection) {
+  return { anchorNode: selection.anchorNode,
+           anchorOffset: selection.anchorOffset,
+           focusNode: selection.focusNode,
+           focusOffset: selection.focusOffset };
+}
+
+function selectionEqual(a, b) {
+  return a.anchorNode.isEqualNode(b.anchorNode) &&
+         a.anchorOffset === b.anchorOffset &&
+         a.focusNode.isEqualNode(b.focusNode) &&
+         a.focusOffset === b.focusOffset;
+}
+
+function selectionToPointers(selection) {
+}
+
+function requestSlink(location, pointers) {
 }
 
 function getPathTo(element) {
