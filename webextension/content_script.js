@@ -1,17 +1,12 @@
-// ==UserScript==
-// @name        slink
-// @namespace   github.com/wcerfgba
-// @include     *
-// @version     1
-// @grant       none
-// ==/UserScript==
+'use strict';
+
+slink();
 
 function slink() {
   var selection = window.getSelection();
-  pointers = selectionToPointers(selection);
+  var pointers = selectionToPointers(selection);
   highlight(pointers);
 }
-unsafeWindow.slink = slink;
 
 function selectionCopy(selection) {
   return { anchorNode: selection.anchorNode,
@@ -37,14 +32,13 @@ function selectionToPointers(selection) {
 
 // From https://developer.mozilla.org/en-US/docs/Web/XPath/Snippets#getXPathForElement
 function getXPathForElement(el) {
-  xml = window.document;
   var xpath = '';
   var pos, tempitem2;
-  while(el !== xml) {   
+  while(el !== document) {   
     pos = 0;
     tempitem2 = el;
     while(tempitem2) {
-      if (tempitem2.nodeType === 1 && tempitem2.nodeName === el.nodeName) {
+      if (tempitem2.nodeName === el.nodeName) {
         pos += 1;
       }
       tempitem2 = tempitem2.previousSibling;
@@ -55,7 +49,7 @@ function getXPathForElement(el) {
                              (el.id ? ' and @id="' + el.id + '"': '') + ']' +
                             '/' + xpath;
     } else {
-      xpath = 'text()/' + xpath;
+      xpath = 'text()[position()=' + pos + ']/' + xpath;
     }
 
     el = el.parentNode;
