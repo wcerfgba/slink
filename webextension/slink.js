@@ -66,6 +66,7 @@ function xPathToElement (doc, path) {
 function requestSlink (location, pointers) {
   var data = JSON.stringify({ location: location, pointers: pointers });
   var req = new XMLHttpRequest();
+  req.timeout = 10000;
   req.onload = function () {
     console.log(this.responseURL);
     window.location.href = this.responseURL;

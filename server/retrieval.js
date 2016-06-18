@@ -1,29 +1,29 @@
 'use strict';
 
 var storage = require('./storage');
-var http = require('http');
-var url = require('url');
+var request = require('request');
 var xpath = require('xpath');
 var dom = require('xmldom').DOMParser;
 var highlight = require('../common/highlight');
 
 function retrieveAndHighlight (location, pointers, cb) {
-  var reqOptions = url.parse(location);
-  reqOptions.headers = { 'User-Agent': 'slink' };
-  http.request(reqOptions, function (res) {
-    var data = '';
-    res.on('data', function (chunk) {
-      data += chunk;
-    });
-    res.on('end', function () {
-      var highlighted = highlight(data, pointers);
+  var body = '';
+console.log("Requesting page: ", location);
+  request({ url: location, headers: { 'User-Agent': 'slink' }, gzip: true })
+    .on('data', function (data) {
+      body += data;
+    })
+    .on('end', function () {
+console.log("Finished retrieving page.");
+      var highlighted = highlightWrapper(body, pointers);
       storage.add(highlighted, cb);
     });
-  });
 }
 
-function highlight (data, pointers) {
+function highlightWrapper (data, pointers) {
+console.log("Highlighting...");
   var html = new dom().parseFromString(data);
+console.log(html)
   html = highlight(html, pointers, xPathToElement);
   return html;
 }
