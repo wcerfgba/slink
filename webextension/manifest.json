@@ -15,11 +15,18 @@
   ],
 
   "background":  {
-    "scripts": [ "slink.js" ],
+    "scripts": [ "slink_background.js" ],
     "persistent": false
   },
 
   "browser_action": {
     "default_title":  "slink"
-  }
+  },
+
+  "content_scripts":  [
+    {
+      "matches":  [ "<all_urls>" ],
+      "css":  [ "slink.css" ]
+    }
+  ]
 }
