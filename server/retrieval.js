@@ -23,13 +23,16 @@ console.log("Finished retrieving page.");
 function highlightWrapper (data, pointers) {
 console.log("Highlighting...");
   var html = new dom().parseFromString(data);
-console.log(html)
   html = highlight(html, pointers, xPathToElement);
   return html;
 }
 
 function xPathToElement (doc, path) {
-  return xpath.select(path, doc)[0];
+  path = path.toLowerCase();
+  var el = xpath.evaluate(path, doc, null,
+                          xpath.XPathResult.FIRST_ORDERED_NODE_TYPE, null)
+                .singleNodeValue;
+  return el;
 }
 
 exports = module.exports = { retrieveAndHighlight: retrieveAndHighlight };
