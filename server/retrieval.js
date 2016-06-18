@@ -3,6 +3,9 @@
 var storage = require('./storage');
 var http = require('http');
 var url = require('url');
+var xpath = require('xpath');
+var dom = require('xmldom').DOMParser;
+var highlight = require('../common/highlight');
 
 function retrieveAndHighlight (location, pointers, cb) {
   var reqOptions = url.parse(location);
@@ -19,4 +22,12 @@ function retrieveAndHighlight (location, pointers, cb) {
   });
 }
 
-function highlight (data, pointers)
+function highlight (data, pointers) {
+  var html = new dom().parseFromString(data);
+  html = highlight(html, pointers, xPathToElement);
+  return html;
+}
+
+function xPathToElement (doc, path) {
+  return xpath.select(path, doc)[0];
+}
