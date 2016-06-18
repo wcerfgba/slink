@@ -18,11 +18,17 @@ app.get('/', function (req, res) {
 
 // slink IDs are just numbers.
 app.get('/:id(\\d+)', function (req, res) {
-  if (storage.exists(req.params.id)) {
-    res.send(storage.get(req.params.id));
-  } else {
-    res.status(404).sendFile(pubDir + '/404.html');
-  }
+  storage.get(req.params.id, function (err, data) {
+    if (err) {
+      return console.error(err);
+    }
+
+    if (data.length === 0) {
+      res.status(404).sendFile(pubDir + '/404.html');
+    } else {
+      res.send(data);
+    }
+  });
 });
 
 // Get a slink.
@@ -35,7 +41,7 @@ app.post('/new', function (req, res) {
   var cb = function (err, id) {
     if (err) {
       res.status(500).sendFile(pubDir + '500.html');
-      return;
+      return console.error(err);
     }
 
     res.redirect('/' + id);
