@@ -4,7 +4,15 @@ slink();
 
 function slink() {
   var selection = window.getSelection();
+  if (!selection.anchorNode || !selection.focusNode ||
+      selection.anchorNode.nodeName === 'BODY' ||
+      selection.anchorNode.nodeName === 'HTML' ||
+      selection.focusNode.nodeName === 'BODY' ||
+      selection.focusNode.nodeName === 'HTML') {
+        return;
+  }
   var pointers = selectionToPointers(selection);
+console.log(pointers);
   highlight(pointers);
 }
 
@@ -30,7 +38,8 @@ function selectionToPointers(selection) {
   return { start: start, end: end };
 }
 
-// From https://developer.mozilla.org/en-US/docs/Web/XPath/Snippets#getXPathForElement
+// Based on code from
+// https://developer.mozilla.org/en-US/docs/Web/XPath/Snippets#getXPathForElement
 function getXPathForElement(el) {
   var xpath = '';
   var pos, tempitem2;
@@ -65,7 +74,7 @@ function requestSlink(location, pointers) {
 function highlight(pointers) {
   var highlight = document.createElement('span');
   highlight.style.background = 'yellow';
-  highlight.style.padding = '2';
+  highlight.style.padding = '4px 0px 4px 0px';
 
   var startEl = document.evaluate(pointers.start.path, document, null,
                                   XPathResult.FIRST_ORDERED_NODE_TYPE, null)
@@ -74,9 +83,21 @@ function highlight(pointers) {
                                 XPathResult.FIRST_ORDERED_NODE_TYPE, null)
                       .singleNodeValue;
 
-  if (startEl.isEqualNode(endEl) && startEl.nodeType === 3) {
+  // Make sure we're heading in the right direction.
+  if (endEl.compareDocumentPosition(startEl) & 
+        Node.DOCUMENT_POSITION_FOLLOWING) {
+    var tmpEl = startEl;
+    var tmpOffset = pointers.start.offset;
+    startEl = endEl;
+    pointers.start.offset = pointers.end.offset;
+    endEl = tmpEl;
+    pointers.end.offset = tmpOffset;
+  }
+
+  if (startEl === endEl && startEl.nodeType === 3) {
     startEl = startEl.splitText(pointers.start.offset);
-    endEl = startEl.splitText(pointers.end.offset - pointers.start.offset);
+    startEl.splitText(pointers.end.offset - pointers.start.offset);
+    endEl = startEl;
   } else {
     if (startEl.nodeType === 3) {
       startEl = startEl.splitText(pointers.start.offset);
@@ -87,17 +108,34 @@ function highlight(pointers) {
   }
 
   var next = startEl;
-  while (next && !next.isEqualNode(endEl)) {
-    var old = next;
-    highlight.appendChild(next.cloneNode());
-    while (!next.nextSibling && next.parentNode) {
-      next = next.parentNode;
+  outer:
+  while (next) {
+    // If we have subnodes, descend, unless we are at the end.
+    if (next.hasChildNodes()) {
+      next = next.firstChild;
+      continue;
     }
-    if (next.nextSibling) {
-      next = next.nextSibling;
-    }
-    old.parentNode.removeChild(old);
-  }
 
-  endEl.parentNode.insertBefore(highlight, endEl);
+    // Replace node with highlight.
+    var replacement = highlight.cloneNode(true);
+    replacement.appendChild(next.cloneNode(true));
+    var replaced = next.parentNode.replaceChild(replacement, next);
+    next = replacement;
+
+    // Break if we've hit the end.
+    if (replaced === endEl) {
+      break;
+    }
+
+    // Go to next sibling, moving up hierarchy until we can move forward.
+    while (!next.nextSibling) {
+      next = next.parentNode;
+
+      // Break outer if we're coming out of the end element.
+      if (next === endEl) {
+        break outer;
+      }
+    }
+    next = next.nextSibling;
+  }
 }
