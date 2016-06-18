@@ -1,5 +1,7 @@
 'use strict';
 
+var endpoint = 'http://localhost:3000/new';
+
 slink();
 
 function slink () {
@@ -13,7 +15,8 @@ function slink () {
   }
   var pointers = selectionToPointers(selection);
 console.log(pointers);
-  highlight(document, pointers, xPathToElement);
+  //highlight(document, pointers, xPathToElement);
+  requestSlink(document.URL, pointers);
 }
 
 function selectionToPointers(selection) {
@@ -61,4 +64,13 @@ function xPathToElement (doc, path) {
 }
 
 function requestSlink (location, pointers) {
+  var data = JSON.stringify({ location: location, pointers: pointers });
+  var req = new XMLHttpRequest();
+  req.onload = function () {
+    console.log(this.responseURL);
+    window.location.href = this.responseURL;
+  };
+  req.open('POST', endpoint);
+  req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+  req.send(data);
 }

@@ -5,8 +5,10 @@ var bodyParser = require('body-parser');
 var storage = require('./storage');
 var retrieval = require('./retrieval');
 
+var port = process.env.PORT || 3000;
 var app = express();
 app.use(bodyParser.json());
+app.listen(port);
 
 var homepage = 'https://wcerfgba.github.io/slink';
 var pubDir = __dirname + '/public/';

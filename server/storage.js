@@ -1,11 +1,10 @@
 'use strict';
 
-var process = require('process');
 var pg = require('pg');
 
 pg.defaults.ssl = true;
 
-var dburl = process.env.DATABASE_URL;
+var dburl = process.env.DATABASE_URL || 'postgres://slink@localhost:6212/slink';
 
 function get (id, cb) {
   pg.connect(dburl, function (err, client, done) {

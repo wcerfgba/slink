@@ -31,3 +31,5 @@ function highlight (data, pointers) {
 function xPathToElement (doc, path) {
   return xpath.select(path, doc)[0];
 }
+
+exports = module.exports = { retrieveAndHighlight: retrieveAndHighlight };
