@@ -2,12 +2,9 @@
 
 var storage = require('./storage');
 var request = require('request');
-var level3 = require('path').resolve(require.resolve('jsdom'), '..', 'jsdom/level3');
-var xpath = require(level3 + '/xpath.js');
-//var xpath = require('xpath');
-//var dom = require('xmldom').DOMParser;
 var jsdom = require('jsdom').jsdom;
 var serializeDocument = require('jsdom').serializeDocument;
+var url = require('url');
 var highlight = require('../common/highlight');
 
 function retrieveAndHighlight (location, pointers, cb) {
@@ -18,18 +15,27 @@ console.log("Requesting page: ", location);
       body += data;
     })
     .on('end', function () {
-console.log("Finished retrieving page.");
-      var highlighted = highlightWrapper(body, pointers);
+console.log("Finished retrieving page: " + body.length + " characters.");
+      var highlighted = highlightWrapper(location, body, pointers);
       storage.add(highlighted, cb);
     });
 }
 
-function highlightWrapper (data, pointers) {
+function highlightWrapper (location, data, pointers) {
 console.log("Highlighting...");
-//  var html = new dom().parseFromString(data);
   var html = jsdom(data);
-  // Attach compareDocumentPosition.
   html = serializeDocument(highlight(html, pointers, xPathToElement));
+
+  // Replace relative links.
+  var hrefRegex = /href=["']([^"']+)["']/gi;
+  var srcRegex = /src=["']([^"']+)["']/gi;
+  html = html.replace(hrefRegex, function (match, p1) {
+    return 'href="' + url.resolve(location, p1) + '"';
+  });
+  html = html.replace(srcRegex, function (match, p1) {
+    return 'src="' + url.resolve(location, p1) + '"';
+  });
+
   return html;
 }
 
