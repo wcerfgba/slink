@@ -25,7 +25,7 @@ app.get('/:id(\\d+)', function (req, res) {
       return console.error(err);
     }
 
-    if (!data || data.length === 0) {
+    if (!data || !data.length) {
       res.status(404).sendFile(pubDir + '/404.html');
     } else {
       res.send(data);
@@ -46,7 +46,7 @@ app.post('/new', function (req, res) {
       return console.error(err);
     }
 
-  console.log("Redirecting...");
+    console.log("Redirecting to slink: ", id);
     res.redirect('/' + id);
   };
   retrieval.retrieve(req.body.location, req.body.text, req.body.pointers, cb);

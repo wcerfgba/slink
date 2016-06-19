@@ -1,50 +1,62 @@
 'use strict';
 
-var pg = require('pg');
+var MongoClient = require('mongodb').MongoClient;
 
-// pg.defaults.ssl = true;
-pg.defaults.ssl = false;
-
-var dburl = process.env.DATABASE_URL || 'postgres://slink@localhost:5432/slink';
+var dburl = process.env.MONGODB_URI || 'mongodb://slink:slink@localhost:27017/slink';
 
 function get (id, cb) {
-  pg.connect(dburl, function (err, client, done) {
+  MongoClient.connect(dburl, function (err, db) {
     if (err) {
       return cb(err);
     }
 
-    client.query({ name: 'get', text: 'SELECT data FROM slink WHERE id=$1' },
-                 [ id ],
-                 function (err, result) {
-                   if (err) {
-                     return cb(err);
-                   }
-                   if (result.rowCount === 0) {
-                     cb(null, '');
-                   } else {
-                     cb(null, result.rows[0].data);
-                   }
-                 });
-    done();
+    var collection = db.collection('slink');
+    collection.findOne({ id: parseInt(id) }, function (err, result) {
+      if (err) {
+        return cb(err);
+      }
+
+      db.close();
+
+      if (!result || !result.text) {
+        cb(null, '');
+      } else {
+        cb(null, result.text);
+      }
+    });
+
   });
 }
 
-function add (data, cb) {
-  pg.connect(dburl, function (err, client, done) {
+function add (text, metadata, cb) {
+  MongoClient.connect(dburl, function (err, db) {
     if (err) {
       return cb(err);
     }
 
-    client.query({ name: 'add', text: 'INSERT INTO slink (id, data, added) ' + 
-                                      'VALUES (DEFAULT, $1, $2) RETURNING id' },
-                 [ data, new Date() ],
-                 function (err, result) {
-                   if (err) {
-                     return cb(err);
-                   }
-                   cb(null, result.rows[0].id);
-                 });
-    done();
+    var counterCallback = function (err, result) {
+      if (err) {
+        return cb(err);
+      }
+
+      var nextId = result.value.seq;
+
+      var collection = db.collection('slink');
+      collection.insertOne({ id: nextId, text: text, metadata: metadata },
+                           function (err, result) {
+                             if (err) {
+                               return cb(err);
+                             }
+                             db.close();
+                             cb(null, nextId);
+                           });
+    };
+
+    var counters = db.collection('counters');
+    var ret = counters.findAndModify({ _id: 'slink_id' }, [ ],
+                                     { $inc: { seq: 1 } },
+                                     { new: true },
+                                     counterCallback);
   });
 }
 

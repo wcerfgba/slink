@@ -4,6 +4,7 @@ var storage = require('./storage');
 var request = require('request');
 var jsdom = require('jsdom').jsdom;
 var serializeDocument = require('jsdom').serializeDocument;
+var diffDOM = require('diff-dom');
 var url = require('url');
 var highlight = require('../common/highlight');
 

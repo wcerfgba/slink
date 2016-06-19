@@ -14,9 +14,7 @@ function slink () {
         return;
   }
   var pointers = selectionToPointers(selection);
-console.log(pointers);
-  //highlight(document, pointers, xPathToElement);
-  requestSlink(document.URL, pointers);
+  requestSlink(document.URL, document.documentElement.outerHTML, pointers);
 }
 
 function selectionToPointers(selection) {
@@ -63,8 +61,8 @@ function xPathToElement (doc, path) {
                         .singleNodeValue;
 }
 
-function requestSlink (location, pointers) {
-  var data = JSON.stringify({ location: location, pointers: pointers });
+function requestSlink (location, text, pointers) {
+  var data = JSON.stringify({ location: location, text: text, pointers: pointers });
   var req = new XMLHttpRequest();
   req.timeout = 10000;
   req.onload = function () {
