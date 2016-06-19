@@ -25,7 +25,7 @@ app.get('/:id(\\d+)', function (req, res) {
       return console.error(err);
     }
 
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
       res.status(404).sendFile(pubDir + '/404.html');
     } else {
       res.send(data);

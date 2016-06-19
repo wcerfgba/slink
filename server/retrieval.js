@@ -7,6 +7,7 @@ var xpath = require(level3 + '/xpath.js');
 //var xpath = require('xpath');
 //var dom = require('xmldom').DOMParser;
 var jsdom = require('jsdom').jsdom;
+var serializeDocument = require('jsdom').serializeDocument;
 var highlight = require('../common/highlight');
 
 function retrieveAndHighlight (location, pointers, cb) {
@@ -28,7 +29,7 @@ console.log("Highlighting...");
 //  var html = new dom().parseFromString(data);
   var html = jsdom(data);
   // Attach compareDocumentPosition.
-  html = highlight(html, pointers, xPathToElement);
+  html = serializeDocument(highlight(html, pointers, xPathToElement));
   return html;
 }
 

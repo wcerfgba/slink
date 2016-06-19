@@ -7,9 +7,6 @@ function highlight(document, pointers, xPathToElement) {
   var startEl = xPathToElement(document, pointers.start.path);
   var endEl = xPathToElement(document, pointers.end.path);
 
-console.log("startEl: ", startEl);
-console.log("endEl: ", endEl);
-
   // Make sure we're heading in the right direction.
   // DOCUMENT_POSITION_FOLLOWING = 0x04
   if (endEl.compareDocumentPosition(startEl) & 0x04) {
