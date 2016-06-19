@@ -2,9 +2,10 @@
 
 var pg = require('pg');
 
-pg.defaults.ssl = true;
+// pg.defaults.ssl = true;
+pg.defaults.ssl = false;
 
-var dburl = process.env.DATABASE_URL || 'postgres://slink@localhost:6212/slink';
+var dburl = process.env.DATABASE_URL || 'postgres://slink@localhost:5432/slink';
 
 function get (id, cb) {
   pg.connect(dburl, function (err, client, done) {
@@ -35,7 +36,7 @@ function add (data, cb) {
     }
 
     client.query({ name: 'add', text: 'INSERT INTO slink (id, data, added) ' + 
-                                      'VALUES (DEFAULT, $1, $2 RETURNING id' },
+                                      'VALUES (DEFAULT, $1, $2) RETURNING id' },
                  [ data, new Date() ],
                  function (err, result) {
                    if (err) {

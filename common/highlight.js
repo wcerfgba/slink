@@ -11,8 +11,8 @@ console.log("startEl: ", startEl);
 console.log("endEl: ", endEl);
 
   // Make sure we're heading in the right direction.
-  if (endEl.compareDocumentPosition(startEl) & 
-        Node.DOCUMENT_POSITION_FOLLOWING) {
+  // DOCUMENT_POSITION_FOLLOWING = 0x04
+  if (endEl.compareDocumentPosition(startEl) & 0x04) {
     var tmpEl = startEl;
     var tmpOffset = pointers.start.offset;
     startEl = endEl;
