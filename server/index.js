@@ -35,19 +35,19 @@ app.get('/:id(\\d+)', function (req, res) {
 
 // Get a slink.
 app.post('/new', function (req, res) {
-  if (!req.body.location || !req.body.pointers) {
+  if (!req.body.location || !req.body.text || !req.body.pointers) {
     res.status(400).sendFile(pubDir + '400.html');
     return;
   }
-console.log("New request...");
+  console.log("New request...");
   var cb = function (err, id) {
     if (err) {
       res.status(500).sendFile(pubDir + '500.html');
       return console.error(err);
     }
 
-console.log("Redirecting...");
+  console.log("Redirecting...");
     res.redirect('/' + id);
   };
-  retrieval.retrieveAndHighlight(req.body.location, req.body.pointers, cb);
+  retrieval.retrieve(req.body.location, req.body.text, req.body.pointers, cb);
 });

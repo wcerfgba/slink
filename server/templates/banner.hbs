@@ -1,6 +1,6 @@
 <div class="slink-banner">
   <a class="slink-banner__homepage-link" href="{{ homepage }}">
-    <img src="/public/icon.png">
+    <img src="{{ serverRoot }}/public/icon.png">
   </a>
   <div class="slink-banner__metadata-container">
     <span class="slink-banner__metadata-line">Original URL: <a href="{{ location }}">{{ location }}</a></span>
@@ -8,6 +8,6 @@
     <span class="slink-banner__metadata-line">Verified: {{ verified }}</span>
   </div>
   <a class="slink-banner__verified-link" href="{{ homepage }}/verification.html" target="_blank">
-    <img src="/public/verified-{{ verified }}.png">
+    <img src="{{ serverRoot }}/public/verified-{{ verified }}.png">
   </a>
 </div>
