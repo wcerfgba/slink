@@ -2,11 +2,16 @@
 
 var storage = require('./storage');
 var request = require('request');
-var jsdom = require('jsdom').jsdom;
-var serializeDocument = require('jsdom').serializeDocument;
+var jsdom = require('jsdom');
 var diffDOM = require('diff-dom');
 var url = require('url');
 var highlight = require('../common/highlight');
+
+// Set jsdom default features.
+jsdom.defaultDocumentFeatures = {
+  FetchExternalResources: false,
+  ProcessExternalResources: false
+};
 
 function retrieve (location, text, pointers, cb) {
   // GET location and send everything through the pipeline.
@@ -18,17 +23,32 @@ function retrieve (location, text, pointers, cb) {
     })
     .on('end', function () {
       console.log("Finished retrieving page: " + body.length + " characters.");
+      // Remove DOCTYPE, if any.
+      //body = body.replace(/<!DOCTYPE[^>]*>/, '');
+
       pipeline(location, text, pointers, body, cb);
     });
 }
 
 function pipeline (location, clientText, pointers, reqText, cb) {
   // Build DOMs.
-  var clientDOM = jsdom(clientText);
-  var reqDOM = jsdom(reqText);
+  var clientDOM = jsdom.jsdom(clientText);
+  var reqDOM = jsdom.jsdom(reqText);
 
-  // Diff DOMs.
-  var diff = new diffDOM().diff(clientDOM, reqDOM);
+  // Diff DOMs. Ignore form fields.
+  var diff = new diffDOM({ valueDiffing: false }).diff(clientDOM, reqDOM);
+  // Skip removal of attributes, script elements, link elements.
+  diff = diff.filter(function (diff) {
+    if (diff.action === 'removeAttribute') {
+      return false;
+    }
+    if (diff.action === 'removeElement' &&
+        (diff.element.nodeName === 'SCRIPT' ||
+         diff.element.nodeName === 'LINK')) {
+      return false;
+    }
+    return true;
+  });
 console.log(diff);
 
   // Set metadata. In particular, verified is 'Yes' if the diff is empty.
@@ -42,7 +62,7 @@ console.log(diff);
   // Build and insert banner.
   
   // Serialize.
-  var finalText = serializeDocument(clientDOM);
+  var finalText = jsdom.serializeDocument(clientDOM);
 
   // Replace relative links.
   var hrefRegex = /href=["']([^"']+)["']/gi;

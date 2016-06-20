@@ -14,7 +14,7 @@ function slink () {
         return;
   }
   var pointers = selectionToPointers(selection);
-  requestSlink(document.URL, document.documentElement.outerHTML, pointers);
+  requestSlink(document.URL, new XMLSerializer().serializeToString(document), pointers);
 }
 
 function selectionToPointers(selection) {
