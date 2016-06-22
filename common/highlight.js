@@ -2,7 +2,10 @@
 
 function highlight(document, pointers, xPathToElement) {
   var highlight = document.createElement('span');
-  highlight.className = 'slink-highlight';
+  highlight.setAttribute('class', 'slink-highlight');
+  var anchor = document.createElement('a');
+  anchor.setAttribute('id', 'slink');
+  anchor.setAttribute('name', 'slink');
 
   var startEl = xPathToElement(document, pointers.start.path);
   var endEl = xPathToElement(document, pointers.end.path);
@@ -30,6 +33,9 @@ function highlight(document, pointers, xPathToElement) {
       endEl.splitText(pointers.end.offset);
     }
   }
+
+  // Insert anchor at beginning of selection.
+  startEl.parentNode.insertBefore(anchor, startEl);
 
   var next = startEl;
   outer:

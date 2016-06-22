@@ -7,7 +7,7 @@ var storage = require('./storage');
 var retrieval = require('./retrieval');
 
 var app = express();
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '1024kb' }));
 
 // Resolve path because express considers .. to be malicious.
 var pubDir = path.resolve(__dirname + '/../website/build/');
@@ -55,7 +55,7 @@ app.post('/new', function (req, res) {
     }
 
     console.log("Redirecting to slink: ", id);
-    res.redirect('/' + id);
+    res.redirect('/' + id + '#slink');
   };
   var serverRoot = req.protocol + '://' + req.get('host');
   retrieval.retrieve(req.body.location, req.body.text, req.body.pointers,

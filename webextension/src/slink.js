@@ -67,7 +67,7 @@ function requestSlink (location, text, pointers) {
   req.timeout = 10000;
   req.onload = function () {
     console.log(this.responseURL);
-    window.location.href = this.responseURL;
+    window.location.href = this.responseURL + '#slink';
   };
   req.open('POST', endpoint);
   req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');

@@ -1,4 +1,5 @@
 .slink-banner {
+  color: #000;
   background: #5d5;
   position: fixed;
   top: 0;
@@ -38,4 +39,17 @@
   width: 100%;
   font-size: 16px;
   height: 5em;
+}
+
+.slink-highlight {
+  color: black;
+  background: yellow;
+  line-height: 1.5em;
+  padding: 0.25em 0;
+}
+
+#slink {
+  display: block;
+  position: relative;
+  top: -100px;
 }

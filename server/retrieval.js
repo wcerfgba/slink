@@ -20,8 +20,8 @@ hbs.registerHelper('equal', function(lvalue, rvalue, options) {
         return options.fn(this);
     }
 });
-var templateDir = __dirname + '/templates/';
-var bannerTemplateText = fs.readFileSync(templateDir + '/banner.hbs')
+var templateDir = __dirname + '/../website/src/templates/';
+var bannerTemplateText = fs.readFileSync(__dirname + '/templates/banner.hbs')
                            .toString('utf8');
 var verificationTemplateText = fs.readFileSync(templateDir + '/verification.hbs')
                                  .toString('utf8');
@@ -91,8 +91,7 @@ function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
     var bannerDOM = jsdom.jsdom(bannerTemplate(metadata));
     var banner = bannerDOM.getElementsByClassName('slink-banner')[0];
     var bannerSpacer = bannerDOM.getElementsByClassName('slink-banner-spacer')[0];
-    var cssLinkText = '<link href="' + serverRoot + 
-                      '/slink-banner.css" rel="stylesheet">';
+    var cssLinkText = '<link href="' + serverRoot + '/slink.css" rel="stylesheet">';
     var cssLink = jsdom.jsdom(cssLinkText) .getElementsByTagName('link')[0];
     clientDOM.body.insertBefore(bannerSpacer, clientDOM.body.firstChild);
     clientDOM.body.insertBefore(banner, clientDOM.body.firstChild);
