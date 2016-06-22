@@ -49,12 +49,13 @@ function pipeline (location, clientText, pointers, reqText, cb) {
     }
     return true;
   });
-console.log(diff);
 
-  // Set metadata. In particular, verified is 'Yes' if the diff is empty.
-  var metadata = { verified: diff.length === 0 ? 'Yes' : 'No',
-                   retrieval_time: new Date(),
-                   location: location };
+  // Determine verification status as human-readable string.
+  var verified = diff.length === 0 ? 'Yes' : 'No';
+
+  // Build metadata.
+  var metadata = { verified: verified, diff: diff,
+                   retrieval_time: new Date(), location: location };
 
   // Highlight client document.
   clientDOM = highlight(clientDOM, pointers, xPathToElement);
