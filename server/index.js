@@ -1,5 +1,6 @@
 'use strict';
 
+var path = require('path');
 var express = require('express');
 var bodyParser = require('body-parser');
 var storage = require('./storage');
@@ -8,7 +9,8 @@ var retrieval = require('./retrieval');
 var app = express();
 app.use(bodyParser.json());
 
-var pubDir = __dirname + '../website/build/';
+// Resolve path because express considers .. to be malicious.
+var pubDir = path.resolve(__dirname + '/../website/build/');
 
 // slink IDs are just numbers.
 app.get('/:id(\\d+)', function (req, res) {
@@ -17,7 +19,7 @@ app.get('/:id(\\d+)', function (req, res) {
       return console.error(err);
     }
 
-    if (!data || !data.length) {
+    if (!data || !data.slinkText) {
       res.status(404).sendFile(pubDir + '/404.html');
     } else {
       res.send(data.slinkText);
@@ -31,7 +33,7 @@ app.get('/verification/:id(\\d+)', function (req, res) {
       return console.error(err);
     }
 
-    if (!data || !data.length) {
+    if (!data || !data.verifyText) {
       res.status(404).sendFile(pubDir + '/404.html');
     } else {
       res.send(data.verifyText);
@@ -42,13 +44,13 @@ app.get('/verification/:id(\\d+)', function (req, res) {
 // Make a slink.
 app.post('/new', function (req, res) {
   if (!req.body.location || !req.body.text || !req.body.pointers) {
-    res.status(400).sendFile(pubDir + '400.html');
+    res.status(400).sendFile(pubDir + '/400.html');
     return;
   }
   console.log("New request...");
   var cb = function (err, id) {
     if (err) {
-      res.status(500).sendFile(pubDir + '500.html');
+      res.status(500).sendFile(pubDir + '/500.html');
       return console.error(err);
     }
 

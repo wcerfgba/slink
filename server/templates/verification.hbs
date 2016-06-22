@@ -8,9 +8,9 @@
 <h4>Banner</h4>
 {{> banner }}
 <h4>diffDOM object</h4>
-{{#if verified === 'Yes'}}
+{{#equal verified 'Yes'}}
 <p>The diffDOM object for this slink was empty and the slink is considered verified.</p>
 {{else}}
 <pre class="diffdom">{{ diff }}</pre>
-{{/if}}
+{{/equal}}
 <p>slink uses <a href="https://github.com/tmpvar/jsdom">jsdom</a> for converting HTML source to a machine-readable DOM object and vice versa, and uses <a href="https://github.com/fiduswriter/diffDOM">diffDOM</a> for calculating the difference between the authoritative and user DOMs.</p>

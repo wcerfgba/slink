@@ -18,7 +18,7 @@ function get (id, cb) {
 
       db.close();
 
-      if (!result || !result.text) {
+      if (!result) {
         cb(null, '');
       } else {
         cb(null, result);
@@ -54,11 +54,13 @@ function nextID (cb) {
     }
 
     var counterCallback = function (err, result) {
+      db.close();
+
       if (err) {
         return cb(err);
       }
 
-      return cb(result.value.seq);
+      cb(null, result.value.seq);
     };
 
     var counters = db.collection('counters');

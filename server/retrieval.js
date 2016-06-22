@@ -1,5 +1,6 @@
 'use strict';
 
+var fs = require('fs');
 var storage = require('./storage');
 var request = require('request');
 var jsdom = require('jsdom');
@@ -9,6 +10,16 @@ var highlight = require('../common/highlight');
 var hbs = require('handlebars');
 
 // Compile templates.
+// From http://doginthehat.com.au/2012/02/comparison-block-helper-for-handlebars-templates/
+hbs.registerHelper('equal', function(lvalue, rvalue, options) {
+    if (arguments.length < 3)
+        throw new Error("Handlebars Helper equal needs 2 parameters");
+    if( lvalue!=rvalue ) {
+        return options.inverse(this);
+    } else {
+        return options.fn(this);
+    }
+});
 var templateDir = __dirname + '/templates/';
 var bannerTemplateText = fs.readFileSync(templateDir + '/banner.hbs')
                            .toString('utf8');
@@ -78,8 +89,9 @@ function pipeline (location, clientText, pointers, reqText, cb) {
     clientDOM = highlight(clientDOM, pointers, xPathToElement);
 
     // Build and insert banner.
-    var banner = bannerTemplate(metadata);
-    clientDOM.body.insertBefore(jsdom(banner), clientDOM.body.firstChild);
+    var banner = jsdom.jsdom(bannerTemplate(metadata))
+                      .getElementsByClassName('slink-banner')[0];
+    clientDOM.body.insertBefore(banner, clientDOM.body.firstChild);
 
     // Build verification page.
     var verification = verificationTemplate(metadata);
@@ -90,15 +102,16 @@ function pipeline (location, clientText, pointers, reqText, cb) {
     // Replace relative links.
     var hrefRegex = /href=["']([^"']+)["']/gi;
     var srcRegex = /src=["']([^"']+)["']/gi;
-    slinkText = finalText.replace(hrefRegex, function (match, p1) {
+    slinkText = slinkText.replace(hrefRegex, function (match, p1) {
       return 'href="' + url.resolve(location, p1) + '"';
     });
-    slinkText = finalText.replace(srcRegex, function (match, p1) {
+    slinkText = slinkText.replace(srcRegex, function (match, p1) {
       return 'src="' + url.resolve(location, p1) + '"';
     });
 
     // Send to storage with metadata and callback.
     storage.add(slinkText, verification, metadata, cb);
+  });
 }
 
 function xPathToElement (doc, path) {
