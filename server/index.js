@@ -5,18 +5,10 @@ var bodyParser = require('body-parser');
 var storage = require('./storage');
 var retrieval = require('./retrieval');
 
-var port = process.env.PORT || 3000;
 var app = express();
 app.use(bodyParser.json());
-app.listen(port);
 
-var homepage = 'https://wcerfgba.github.io/slink';
-var pubDir = __dirname + '/public/';
-
-// This is an AMP server. Redirect root requests to off-server homepage.
-app.get('/', function (req, res) {
-  res.redirect(homepage);
-});
+var pubDir = __dirname + '../website/public/';
 
 // slink IDs are just numbers.
 app.get('/:id(\\d+)', function (req, res) {
@@ -51,3 +43,14 @@ app.post('/new', function (req, res) {
   };
   retrieval.retrieve(req.body.location, req.body.text, req.body.pointers, cb);
 });
+
+// Serve static content underneath the API.
+app.use(express.static(pubDir),
+        function (req, res, next) {
+          // Nothing found, 404.
+          res.status(404).sendFile(pubDir + '/404.html');
+        });
+
+// Go
+var port = process.env.PORT || 3000;
+app.listen(port);
