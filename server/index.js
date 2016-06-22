@@ -8,7 +8,7 @@ var retrieval = require('./retrieval');
 var app = express();
 app.use(bodyParser.json());
 
-var pubDir = __dirname + '../website/public/';
+var pubDir = __dirname + '../website/build/';
 
 // slink IDs are just numbers.
 app.get('/:id(\\d+)', function (req, res) {
