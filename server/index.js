@@ -20,12 +20,26 @@ app.get('/:id(\\d+)', function (req, res) {
     if (!data || !data.length) {
       res.status(404).sendFile(pubDir + '/404.html');
     } else {
-      res.send(data);
+      res.send(data.slinkText);
     }
   });
 });
 
-// Get a slink.
+app.get('/verification/:id(\\d+)', function (req, res) {
+  storage.get(req.params.id, function (err, data) {
+    if (err) {
+      return console.error(err);
+    }
+
+    if (!data || !data.length) {
+      res.status(404).sendFile(pubDir + '/404.html');
+    } else {
+      res.send(data.verifyText);
+    }
+  });
+});
+
+// Make a slink.
 app.post('/new', function (req, res) {
   if (!req.body.location || !req.body.text || !req.body.pointers) {
     res.status(400).sendFile(pubDir + '400.html');

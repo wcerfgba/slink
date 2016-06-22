@@ -6,6 +6,17 @@ var jsdom = require('jsdom');
 var diffDOM = require('diff-dom');
 var url = require('url');
 var highlight = require('../common/highlight');
+var hbs = require('handlebars');
+
+// Compile templates.
+var templateDir = __dirname + '/templates/';
+var bannerTemplateText = fs.readFileSync(templateDir + '/banner.hbs')
+                           .toString('utf8');
+var verificationTemplateText = fs.readFileSync(templateDir + '/verification.hbs')
+                                 .toString('utf8');
+hbs.registerPartial('banner', bannerTemplateText);
+var bannerTemplate = hbs.compile(bannerTemplateText);
+var verificationTemplate = hbs.compile(verificationTemplateText);
 
 // Set jsdom default features.
 jsdom.defaultDocumentFeatures = {
@@ -53,30 +64,41 @@ function pipeline (location, clientText, pointers, reqText, cb) {
   // Determine verification status as human-readable string.
   var verified = diff.length === 0 ? 'Yes' : 'No';
 
-  // Build metadata.
-  var metadata = { verified: verified, diff: diff,
-                   retrieval_time: new Date(), location: location };
+  // Get ID from storage.
+  storage.nextID(function (err, id) {
+    if (err) {
+      return cb(err);
+    }
 
-  // Highlight client document.
-  clientDOM = highlight(clientDOM, pointers, xPathToElement);
+    // Build metadata.
+    var metadata = { id: id, verified: verified, diff: diff,
+                     retrieval_time: new Date(), location: location };
 
-  // Build and insert banner.
-  
-  // Serialize.
-  var finalText = jsdom.serializeDocument(clientDOM);
+    // Highlight client document.
+    clientDOM = highlight(clientDOM, pointers, xPathToElement);
 
-  // Replace relative links.
-  var hrefRegex = /href=["']([^"']+)["']/gi;
-  var srcRegex = /src=["']([^"']+)["']/gi;
-  finalText = finalText.replace(hrefRegex, function (match, p1) {
-    return 'href="' + url.resolve(location, p1) + '"';
-  });
-  finalText = finalText.replace(srcRegex, function (match, p1) {
-    return 'src="' + url.resolve(location, p1) + '"';
-  });
+    // Build and insert banner.
+    var banner = bannerTemplate(metadata);
+    clientDOM.body.insertBefore(jsdom(banner), clientDOM.body.firstChild);
 
-  // Send to storage with metadata and callback.
-  storage.add(finalText, metadata, cb);
+    // Build verification page.
+    var verification = verificationTemplate(metadata);
+    
+    // Serialize.
+    var slinkText = jsdom.serializeDocument(clientDOM);
+
+    // Replace relative links.
+    var hrefRegex = /href=["']([^"']+)["']/gi;
+    var srcRegex = /src=["']([^"']+)["']/gi;
+    slinkText = finalText.replace(hrefRegex, function (match, p1) {
+      return 'href="' + url.resolve(location, p1) + '"';
+    });
+    slinkText = finalText.replace(srcRegex, function (match, p1) {
+      return 'src="' + url.resolve(location, p1) + '"';
+    });
+
+    // Send to storage with metadata and callback.
+    storage.add(slinkText, verification, metadata, cb);
 }
 
 function xPathToElement (doc, path) {

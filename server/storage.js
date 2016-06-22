@@ -21,14 +21,33 @@ function get (id, cb) {
       if (!result || !result.text) {
         cb(null, '');
       } else {
-        cb(null, result.text);
+        cb(null, result);
       }
     });
 
   });
 }
 
-function add (text, metadata, cb) {
+function add (slinkText, verifyText, metadata, cb) {
+  MongoClient.connect(dburl, function (err, db) {
+    if (err) {
+      return cb(err);
+    }
+
+    var collection = db.collection('slink');
+    collection.insertOne({ id: metadata.id, slinkText: slinkText,
+                           verifyText: verifyText, metadata: metadata },
+                         function (err, result) {
+                           db.close();
+                           if (err) {
+                             return cb(err);
+                           }
+                           cb(null, metadata.id);
+                         });
+  });
+}
+
+function nextID (cb) {
   MongoClient.connect(dburl, function (err, db) {
     if (err) {
       return cb(err);
@@ -39,17 +58,7 @@ function add (text, metadata, cb) {
         return cb(err);
       }
 
-      var nextId = result.value.seq;
-
-      var collection = db.collection('slink');
-      collection.insertOne({ id: nextId, text: text, metadata: metadata },
-                           function (err, result) {
-                             if (err) {
-                               return cb(err);
-                             }
-                             db.close();
-                             cb(null, nextId);
-                           });
+      return cb(result.value.seq);
     };
 
     var counters = db.collection('counters');
@@ -60,4 +69,5 @@ function add (text, metadata, cb) {
   });
 }
 
-exports = module.exports = { get: get, add: add };
+
+exports = module.exports = { get: get, add: add, nextID: nextID };
