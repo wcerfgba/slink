@@ -1,14 +1,14 @@
 <div class="slink-banner">
   <a class="slink-banner__homepage-link" href="/">
-    <img src="/img/icon.png">
+    <img src="{{ serverRoot }}/img/logo.png">
   </a>
   <div class="slink-banner__metadata-container">
     <span class="slink-banner__metadata-line">Original URL: <a href="{{ location }}">{{ location }}</a></span>
     <span class="slink-banner__metadata-line">Retrieved at: {{ retrieval_time }}</span>
     <span class="slink-banner__metadata-line">Verified: {{ verified }}</span>
   </div>
-  <a class="slink-banner__verified-link" href="/verification/{{ id }}" target="_blank">
-    <img src="/img/verified-{{ verified }}.png">
+  <a class="slink-banner__verified-link" href="{{ serverRoot }}/verification/{{ id }}" target="_blank">
+    <img src="{{ serverRoot }}/img/verified-{{ verified }}.png">
   </a>
 </div>
-<div class="slink-banner-spacer"></div>
+<div class="slink-banner-spacer">&nbsp;</div>

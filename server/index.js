@@ -57,7 +57,9 @@ app.post('/new', function (req, res) {
     console.log("Redirecting to slink: ", id);
     res.redirect('/' + id);
   };
-  retrieval.retrieve(req.body.location, req.body.text, req.body.pointers, cb);
+  var serverRoot = req.protocol + '://' + req.get('host');
+  retrieval.retrieve(req.body.location, req.body.text, req.body.pointers,
+                     serverRoot, cb);
 });
 
 // Serve static content underneath the API.

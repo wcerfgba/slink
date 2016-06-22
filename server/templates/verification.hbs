@@ -4,6 +4,7 @@
 <p>Although highlighting the user view makes slinking robust, it also presents a security problem because it is easy for a malicious user to change the content of a page before they request a slink. If slinked documents are of questionable authenticity then that poses a problem for many slink use cases, such as drawing attention to a statement made by someone in an online publication -- if a slinked statement cannot be proven authentic then it is of little value.</p>
 <p>To provide authenticity while preserving the operation of the system, when a user requests a slink they must also tell the slink server the alleged location of the document they are slinking. The server downloads its own copy of the page and compares its version with the version sent by the client. If the two pages are identical, the server can conclude that the user hasn't altered the page, and a verification checkmark will appear in the banner displayed at the top of the slink.</p>
 <p>The current implementation of verification in slink is very strict, and it is likely that it will mark many slinks as unverified because of minor changes in document structure that do not reflect malicious intent or significant changes to the document in question. Because of this, you can request the metadata of a slink, including the information about the difference between the user version and authoritative version of a page, so that you are free to make your own judgements. We look forward to improving the verification system in the future and providing more accurate results.</p>
+{{#if id }}
 <h3>Metadata for slink {{ id }}</h3>
 <h4>Banner</h4>
 {{> banner }}
@@ -13,4 +14,5 @@
 {{else}}
 <pre class="diffdom">{{ diff }}</pre>
 {{/equal}}
+{{/if}}
 <p>slink uses <a href="https://github.com/tmpvar/jsdom">jsdom</a> for converting HTML source to a machine-readable DOM object and vice versa, and uses <a href="https://github.com/fiduswriter/diffDOM">diffDOM</a> for calculating the difference between the authoritative and user DOMs.</p>

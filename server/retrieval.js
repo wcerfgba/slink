@@ -35,7 +35,7 @@ jsdom.defaultDocumentFeatures = {
   ProcessExternalResources: false
 };
 
-function retrieve (location, text, pointers, cb) {
+function retrieve (location, text, pointers, serverRoot, cb) {
   // GET location and send everything through the pipeline.
   var body = '';
   console.log("Requesting page: ", location);
@@ -45,14 +45,12 @@ function retrieve (location, text, pointers, cb) {
     })
     .on('end', function () {
       console.log("Finished retrieving page: " + body.length + " characters.");
-      // Remove DOCTYPE, if any.
-      //body = body.replace(/<!DOCTYPE[^>]*>/, '');
 
-      pipeline(location, text, pointers, body, cb);
+      pipeline(location, text, pointers, body, serverRoot, cb);
     });
 }
 
-function pipeline (location, clientText, pointers, reqText, cb) {
+function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
   // Build DOMs.
   var clientDOM = jsdom.jsdom(clientText);
   var reqDOM = jsdom.jsdom(reqText);
@@ -83,15 +81,22 @@ function pipeline (location, clientText, pointers, reqText, cb) {
 
     // Build metadata.
     var metadata = { id: id, verified: verified, diff: diff,
-                     retrieval_time: new Date(), location: location };
+                     retrieval_time: new Date(), location: location,
+                     serverRoot: serverRoot };
 
     // Highlight client document.
     clientDOM = highlight(clientDOM, pointers, xPathToElement);
 
-    // Build and insert banner.
-    var banner = jsdom.jsdom(bannerTemplate(metadata))
-                      .getElementsByClassName('slink-banner')[0];
+    // Build and insert banner and CSS link.
+    var bannerDOM = jsdom.jsdom(bannerTemplate(metadata));
+    var banner = bannerDOM.getElementsByClassName('slink-banner')[0];
+    var bannerSpacer = bannerDOM.getElementsByClassName('slink-banner-spacer')[0];
+    var cssLinkText = '<link href="' + serverRoot + 
+                      '/slink-banner.css" rel="stylesheet">';
+    var cssLink = jsdom.jsdom(cssLinkText) .getElementsByTagName('link')[0];
+    clientDOM.body.insertBefore(bannerSpacer, clientDOM.body.firstChild);
     clientDOM.body.insertBefore(banner, clientDOM.body.firstChild);
+    clientDOM.head.appendChild(cssLink);
 
     // Build verification page.
     var verification = verificationTemplate(metadata);
