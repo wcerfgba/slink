@@ -103,3 +103,15 @@ p:last-child {
     column-gap: 1.5rem;
   }
 }
+
+@import 'slink-banner';
+
+.margin-top {
+  margin-top: 1rem;
+}
+
+.diffdom {
+  white-space: pre-wrap;
+  background: #a8ffa8;
+  margin-bottom: 1rem;
+}

@@ -21,11 +21,17 @@ hbs.registerHelper('equal', function(lvalue, rvalue, options) {
     }
 });
 var templateDir = __dirname + '/../website/src/templates/';
-var bannerTemplateText = fs.readFileSync(__dirname + '/templates/banner.hbs')
-                           .toString('utf8');
-var verificationTemplateText = fs.readFileSync(templateDir + '/verification.hbs')
-                                 .toString('utf8');
+var baseTemplateText =
+      fs.readFileSync(templateDir + '/base.hbs').toString('utf8');
+var bannerTemplateText =
+      fs.readFileSync(__dirname + '/templates/banner.hbs').toString('utf8');
+var verificationContentTemplateText =
+      fs.readFileSync(templateDir + '/verification.hbs').toString('utf8');
+var verificationTemplateText =
+      fs.readFileSync(templateDir + '/verification-slink.hbs').toString('utf8');
+hbs.registerPartial('base', baseTemplateText);
 hbs.registerPartial('banner', bannerTemplateText);
+hbs.registerPartial('verification', verificationContentTemplateText);
 var bannerTemplate = hbs.compile(bannerTemplateText);
 var verificationTemplate = hbs.compile(verificationTemplateText);
 
@@ -80,7 +86,8 @@ function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
     }
 
     // Build metadata.
-    var metadata = { id: id, verified: verified, diff: diff,
+    var metadata = { id: id, verified: verified,
+                     diff: JSON.stringify(diff, null, 2),
                      retrieval_time: new Date(), location: location,
                      serverRoot: serverRoot };
 

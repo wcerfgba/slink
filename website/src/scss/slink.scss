@@ -1,0 +1,28 @@
+@import 'slink-banner';
+
+.slink-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+}
+
+.slink-banner-spacer {
+  width: 100%;
+  font-size: 16px;
+  height: 5em;
+}
+
+.slink-highlight {
+  color: black;
+  background: yellow;
+  line-height: 1.5em;
+  padding: 0.25em 0;
+}
+
+#slink {
+  display: inline-block;
+  position: relative;
+  top: -100px;
+}
