@@ -9,7 +9,8 @@ html, body {
   font-size: 16px;
   line-height: 1.5rem;
   background: #ccffcc;
-  color: #199119;
+  color: #034003;
+  /*color: #199119;*/
 }
 
 p, h1, h2, h3, h4 {
@@ -33,6 +34,7 @@ p:last-child {
 
 .hero-inner {
   position: absolute;
+  width: 100%;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -43,11 +45,14 @@ p:last-child {
   margin: 1rem 0;
 }
 
+.download-icon img {
+  max-width: 128px;
+}
+
 .section {
   padding: 1rem;
   margin-bottom: 1rem;
   background: #55dd55;
-  color: #034003;
 }
 
 .section.odd {

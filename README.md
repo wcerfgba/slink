@@ -45,9 +45,13 @@ slink allows you to link to a selected segment of a Web page.
 
 ## License
 
+All files in `exern/` are copyright their respective authors.
+
 All files in `artwork/` and `website/` represtent marketing IP for the official 
-slink.to server, and as such are copyright John Preston 2016. All other files 
-are licensed under [the MIT license](https://opensource.org/licenses/mit-license.php).
+slink.to server, and as such are copyright John Preston 2016.
+
+All other files are licensed under
+[the MIT license](https://opensource.org/licenses/mit-license.php).
 
 In other words, feel free to use the code for whatever you like, but if you're 
 setting up a public slink server, don't use the same marketing materials because 
