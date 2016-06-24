@@ -1,1 +1,1 @@
-../common/highlight.js
+../../common/highlight.js

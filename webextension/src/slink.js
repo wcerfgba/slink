@@ -1,10 +1,11 @@
 'use strict';
-
+console.log("loaded");
 var endpoint = 'http://localhost:3000/new';
 
 slink();
 
 function slink () {
+console.log("slinkin...");
   var selection = window.getSelection();
   if (!selection.anchorNode || !selection.focusNode ||
       selection.anchorNode.nodeName === 'BODY' ||
@@ -67,7 +68,7 @@ function requestSlink (location, text, pointers) {
   req.timeout = 10000;
   req.onload = function () {
     console.log(this.responseURL);
-    window.location.href = this.responseURL + '#slink';
+    window.open(this.responseURL + '#slink', '_blank');
   };
   req.open('POST', endpoint);
   req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');

@@ -2,7 +2,14 @@ var gulp = require('gulp');
 var hb = require('gulp-hb');
 var sass = require('gulp-sass');
 
-gulp.task('default', [ 'website' ]);
+gulp.task('default', [ 'webextension', 'website' ]);
+
+gulp.task('webextension', [ 'webextension_unpacked' ]);
+
+gulp.task('webextension_unpacked', function () {
+  gulp.src('webextension/src/**')
+    .pipe(gulp.dest('webextension/build/'));
+});
 
 gulp.task('website', [ 'website_templates', 'website_scss', 'website_assets' ]);
 
