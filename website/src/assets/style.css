@@ -46,6 +46,11 @@ p:last-child {
   margin: 1rem 0;
 }
 
+.hero-logo {
+  width: 100%;
+  max-width: 256px;
+}
+
 .download-icon img {
   max-width: 128px;
 }
@@ -79,7 +84,22 @@ p:last-child {
 .widebox-half {
   float: left;
   display: block;
-  width: 50%;
+  width: 100%;
   padding: 1rem;
   background: #a8ffa8;
+}
+
+.columns {
+  text-align: justify;
+}
+
+@media (min-width: 600px) {
+  .widebox-half {
+    width: 50%;
+  }
+
+  .columns {
+    columns: 2;
+    column-gap: 1.5rem;
+  }
 }
