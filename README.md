@@ -19,6 +19,8 @@ slink allows you to link to a selected segment of a Web page.
 * **POST** `/new` - Takes the document text, location, and selection pointers 
   and on success responds with a 403 to the slink.
 * **GET** `/:id(\\d+)` - Retrieves and serves the slink with the specified ID.
+* **GET** `/verification/:id(\\d+)` - Retrieves and serves the verifiation page
+   for the specified ID.
 
 
 ### Creating a slink
@@ -37,7 +39,16 @@ slink allows you to link to a selected segment of a Web page.
 5. Serialize the manipulated DOM and store in the database.
 6. Respond to the client with a redirect to the slink.
 
-
-## References
 [1]: https://github.com/tmpvar/jsdom
 [2]: https://github.com/fiduswriter/diffDOM
+
+
+## License
+
+All files in `artwork/` and `website/` represtent marketing IP for the official 
+slink.to server, and as such are copyright John Preston 2016. All other files 
+are licensed under [the MIT license](https://opensource.org/licenses/mit-license.php).
+
+In other words, feel free to use the code for whatever you like, but if you're 
+setting up a public slink server, don't use the same marketing materials because 
+you are unofficial.
