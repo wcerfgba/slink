@@ -58,10 +58,12 @@ function retrieve (location, text, pointers, serverRoot, cb) {
 
 function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
   // Build DOMs.
+  console.log("Building DOMs...");
   var clientDOM = jsdom.jsdom(clientText);
   var reqDOM = jsdom.jsdom(reqText);
 
   // Diff DOMs. Ignore form fields.
+  console.log("Diffing DOMs...");
   var diff = new diffDOM({ valueDiffing: false }).diff(clientDOM, reqDOM);
   // Skip removal of attributes, script elements, link elements.
   diff = diff.filter(function (diff) {
@@ -92,9 +94,17 @@ function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
                      serverRoot: serverRoot };
 
     // Highlight client document.
-    clientDOM = highlight(clientDOM, pointers, xPathToElement);
+    console.log("Highlighting...");
+    var highlighted = highlight(clientDOM, pointers, xPathToElement);
+
+    if (highlighted.err) {
+      return cb(highlighted.err);
+    } else {
+      clientDOM = highlighted.dom;
+    }
 
     // Build and insert banner and CSS link.
+    console.log("Inserting banner...");
     var bannerDOM = jsdom.jsdom(bannerTemplate(metadata));
     var banner = bannerDOM.getElementsByClassName('slink-banner')[0];
     var bannerSpacer = bannerDOM.getElementsByClassName('slink-banner-spacer')[0];
@@ -111,6 +121,7 @@ function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
     var slinkText = jsdom.serializeDocument(clientDOM);
 
     // Replace relative links.
+    console.log("Replacing relative links...");
     var hrefRegex = /href=["']([^"']+)["']/gi;
     var srcRegex = /src=["']([^"']+)["']/gi;
     slinkText = slinkText.replace(hrefRegex, function (match, p1) {
@@ -121,15 +132,14 @@ function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
     });
 
     // Send to storage with metadata and callback.
+    console.log("Storing...");
     storage.add(slinkText, verification, metadata, cb);
   });
 }
 
 function xPathToElement (doc, path) {
-  path = path.toLowerCase();
   // FIRST_ORDERED_NODE_TYPE = 9
-  var el = doc.evaluate(path, doc, null, 9, null)
-                .singleNodeValue;
+  var el = doc.evaluate(path, doc, null, 9, null).singleNodeValue;
   return el;
 }
 

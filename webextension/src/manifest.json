@@ -23,16 +23,9 @@
     "scripts": [ "slink_background.js" ],
     "persistent": false
   },
-  "content_scripts": [
-    {
-      "matches": "<all_urls>",
-      "js": [ "slink.js" ]
-    }
-  ],
   "browser_action": {
     "browser_style": true,
     "default_title":  "slink",
-    "default_popup": "popup.html",
     "default_icon": {
       "16": "logo-16.png",
       "19": "logo-19.png",

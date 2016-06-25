@@ -1,5 +1,7 @@
+chrome.runtime.onMessage.addListener(function (address) {
+  chrome.tabs.create({ url: address });
+});
+
 chrome.browserAction.onClicked.addListener(function (tab) {
-  //chrome.tabs.executeScript(null, { file: 'highlight.js' });
-  //chrome.tabs.executeScript(null, { file: 'slink.js' });
-  chrome.tabs.executeScript(null, { code: 'slink()' });
+  chrome.tabs.executeScript({ file: 'slink.js' });
 });

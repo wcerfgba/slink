@@ -1,11 +1,10 @@
 'use strict';
-console.log("loaded");
+
 var endpoint = 'http://localhost:3000/new';
 
 slink();
 
 function slink () {
-console.log("slinkin...");
   var selection = window.getSelection();
   if (!selection.anchorNode || !selection.focusNode ||
       selection.anchorNode.nodeName === 'BODY' ||
@@ -66,11 +65,29 @@ function requestSlink (location, text, pointers) {
   var data = JSON.stringify({ location: location, text: text, pointers: pointers });
   var req = new XMLHttpRequest();
   req.timeout = 10000;
-  req.onload = function () {
-    console.log(this.responseURL);
-    window.open(this.responseURL + '#slink', '_blank');
-  };
+  req.addEventListener('load', function (event) {
+    removeStatus();
+    if (chrome && chrome.runtime) {
+      chrome.runtime.sendMessage(req.responseURL + '#slink');
+    } else {
+      window.open(req.responseURL + '#slink', '_blank');
+    }
+  });
+  insertStatus("Waiting for server...");
   req.open('POST', endpoint);
   req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
   req.send(data);
+}
+
+function insertStatus (str) {
+  var status = document.createElement('div');
+  status.setAttribute('id', 'slink-status');
+  status.setAttribute('style', 'position: fixed; top: 0; left: 0; right: 0; background: #5d5; text-align: center;');
+  status.innerHTML = str;
+  document.body.appendChild(status);
+}
+
+function removeStatus () {
+  var status = document.getElementById('slink-status');
+  status.parentNode.removeChild(status);
 }
