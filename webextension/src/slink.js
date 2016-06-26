@@ -1,8 +1,25 @@
 'use strict';
 
-var endpoint = 'http://localhost:3000/new';
+//var endpoint = 'http://localhost:3000/new';
+var endpoint = 'https://slink.to/new';
 
-slink();
+if (chrome && chrome.storage) {
+  var storage;
+
+  if (chrome.storage.sync) {
+    storage = chrome.storage.sync;
+  } else {
+    storage = chrome.storage.local;
+  }
+
+  storage.get({ endpoint: endpoint },
+    function (items) {
+      endpoint = items.endpoint;
+      slink();
+  });
+} else {
+  slink();
+}
 
 function slink () {
   var selection = window.getSelection();
@@ -64,16 +81,21 @@ function xPathToElement (doc, path) {
 function requestSlink (location, text, pointers) {
   var data = JSON.stringify({ location: location, text: text, pointers: pointers });
   var req = new XMLHttpRequest();
-  req.timeout = 10000;
+  req.timeout = 20000;
   req.addEventListener('load', function (event) {
     removeStatus();
     if (chrome && chrome.runtime) {
       chrome.runtime.sendMessage(req.responseURL + '#slink');
     } else {
-      window.open(req.responseURL + '#slink', '_blank');
+      window.location = req.responseURL + '#slink', '_blank';
     }
   });
-  insertStatus("Waiting for server...");
+  req.addEventListener('timeout', function (event) {
+    removeStatus();
+    window.alert('slink did not get a response from the server in time. You can try again.');
+  });
+    
+  insertStatus("slink - Waiting for server...");
   req.open('POST', endpoint);
   req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
   req.send(data);
