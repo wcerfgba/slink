@@ -83,6 +83,11 @@ function requestSlink (location, text, pointers) {
   var req = new XMLHttpRequest();
   req.timeout = 20000;
   req.addEventListener('load', function (event) {
+    if (req.status !== 200) {
+      removeStatus();
+      window.alert('slink encountered a server error: ' + req.status);
+      return;
+    }
     removeStatus();
     if (chrome && chrome.runtime) {
       chrome.runtime.sendMessage(req.responseURL + '#slink');
@@ -93,6 +98,9 @@ function requestSlink (location, text, pointers) {
   req.addEventListener('timeout', function (event) {
     removeStatus();
     window.alert('slink did not get a response from the server in time. You can try again.');
+  });
+  req.addEventListener('error', function (event) {
+    window.alert('slink encountered an error. ' + req.statusText);
   });
     
   insertStatus("slink - Waiting for server...");

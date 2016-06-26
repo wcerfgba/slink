@@ -4,6 +4,7 @@
   font-size: 16px;
   padding: 1em;
   text-align: center;
+  line-height: 100%;
 }
 
 .slink-banner img {
@@ -11,12 +12,16 @@
 }
 
 .slink-banner__homepage-link {
-  float: left;
+  display: inline-block;
+  vertical-align: middle;
   height: 3em;
+  margin-right: 1em;
 }
 
 .slink-banner__metadata-container {
   display: inline-block;
+  vertical-align: middle;
+  width: 60%;
 }
 
 .slink-banner__metadata-line {
@@ -26,6 +31,8 @@
 }
 
 .slink-banner__verified-link {
-  float: right;
+  display: inline-block;
+  vertical-align: middle;
   height: 3em;
+  margin-left: 1em;
 }
