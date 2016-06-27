@@ -3,6 +3,7 @@ var hb = require('gulp-hb');
 var sass = require('gulp-sass');
 var run = require('gulp-run');
 var concat = require('gulp-concat');
+var wrap = require('gulp-wrap');
 
 gulp.task('default', [ 'website' ]);
 
@@ -24,10 +25,12 @@ gulp.task('webextension_chrome', [ 'webextension_unpacked' ], function () {
     .exec();
 });
 
+// Currently broken.
 gulp.task('webextension_bookmarklet', [ 'webextension_unpacked' ], function () {
-  gulp.src('webextension/build/unpacked/slink.js')
-    .pipe(concat('slink_bookmarklet.js'))
-    .pipe(gulp.dest('webextension/build/'));
+  return gulp.src('webextension/build/unpacked/slink.js')
+          .pipe(concat('slinkBookmarklet.hbs'))
+          .pipe(wrap('<a href="javascript:{<%= contents %>};void(0);">slink</a>'))
+          .pipe(gulp.dest('website/src/templates/'));
 });
 
 gulp.task('website', [ 'website_templates', 'website_scss', 'website_assets' ]);

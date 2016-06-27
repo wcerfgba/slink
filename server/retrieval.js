@@ -110,9 +110,16 @@ function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
     var bannerSpacer = bannerDOM.getElementsByClassName('slink-banner-spacer')[0];
     var cssLinkText = '<link href="' + serverRoot + '/slink.css" rel="stylesheet">';
     var cssLink = jsdom.jsdom(cssLinkText) .getElementsByTagName('link')[0];
-    clientDOM.body.insertBefore(bannerSpacer, clientDOM.body.firstChild);
-    clientDOM.body.insertBefore(banner, clientDOM.body.firstChild);
-    clientDOM.head.appendChild(cssLink);
+
+    // If we're slinking a slink, update the banner.
+    var existingBanner = clientDOM.getElementsByClassName('slink-banner')[0];
+    if (existingBanner) {
+      existingBanner.innerHTML = banner.innerHTML;
+    } else {
+      clientDOM.body.insertBefore(bannerSpacer, clientDOM.body.firstChild);
+      clientDOM.body.insertBefore(banner, clientDOM.body.firstChild);
+      clientDOM.head.appendChild(cssLink);
+    }
 
     // Build verification page.
     var verification = verificationTemplate(metadata);

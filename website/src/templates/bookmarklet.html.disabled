@@ -1,0 +1,9 @@
+{{#> base title='Bookmarklet' }}
+<div class="section">
+  <h2>slink bookmarklet</h2>
+  <p>If you don't use Firefox or Chrome, you may still be able to use the slink bookmarklet. Bookamrk the link below (either right-click or drag it to your bookmarks toolbar) to install the slink bookmarklet.</p>
+  {{> slinkBookmarklet }}
+</div>
+<div class="section odd" id="footer">
+</div>
+{{/base}}

@@ -101,6 +101,10 @@ p:last-child {
   .columns {
     columns: 2;
     column-gap: 1.5rem;
+    -moz-columns: 2;
+    -moz-column-gap: 1.5rem;
+    -webkit-columns: 2;
+    -webkit-column-gap: 1.5rem;
   }
 }
 
