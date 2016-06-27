@@ -81,7 +81,7 @@ function xPathToElement (doc, path) {
 function requestSlink (location, text, pointers) {
   var data = JSON.stringify({ location: location, text: text, pointers: pointers });
   var req = new XMLHttpRequest();
-  req.timeout = 20000;
+  req.timeout = 60000;
   req.addEventListener('load', function (event) {
     if (req.status !== 200) {
       removeStatus();
@@ -103,7 +103,7 @@ function requestSlink (location, text, pointers) {
     window.alert('slink encountered an error. ' + req.statusText);
   });
     
-  insertStatus('slink - Waiting for server...');
+  insertStatus('slink - Waiting for server for 60 seconds...');
   req.open('POST', endpoint);
   req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
   req.send(data);

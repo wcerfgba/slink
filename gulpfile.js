@@ -8,7 +8,7 @@ var wrap = require('gulp-wrap');
 gulp.task('default', [ 'website' ]);
 
 gulp.task('webextension', [ 'webextension_unpacked', 'webextension_firefox',
-                            'webextension_chrome', 'webextension_bookmarklet' ]);
+                            'webextension_chrome' ]);
 
 gulp.task('webextension_unpacked', function () {
   return gulp.src('webextension/src/**')
