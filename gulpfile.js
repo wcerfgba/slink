@@ -4,7 +4,7 @@ var sass = require('gulp-sass');
 var run = require('gulp-run');
 var concat = require('gulp-concat');
 
-gulp.task('default', [ 'webextension', 'website' ]);
+gulp.task('default', [ 'website' ]);
 
 gulp.task('webextension', [ 'webextension_unpacked', 'webextension_firefox',
                             'webextension_chrome', 'webextension_bookmarklet' ]);
