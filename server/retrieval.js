@@ -23,6 +23,8 @@ hbs.registerHelper('equal', function(lvalue, rvalue, options) {
 var templateDir = __dirname + '/../website/src/templates/';
 var baseTemplateText =
       fs.readFileSync(templateDir + '/base.hbs').toString('utf8');
+var footerTemplateText =
+      fs.readFileSync(templateDir + '/footer.hbs').toString('utf8');
 var bannerTemplateText =
       fs.readFileSync(__dirname + '/templates/banner.hbs').toString('utf8');
 var verificationContentTemplateText =
@@ -30,6 +32,7 @@ var verificationContentTemplateText =
 var verificationTemplateText =
       fs.readFileSync(templateDir + '/verification-slink.hbs').toString('utf8');
 hbs.registerPartial('base', baseTemplateText);
+hbs.registerPartial('footer', footerTemplateText);
 hbs.registerPartial('banner', bannerTemplateText);
 hbs.registerPartial('verification', verificationContentTemplateText);
 var bannerTemplate = hbs.compile(bannerTemplateText);
@@ -87,10 +90,12 @@ function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
       return cb(err);
     }
 
-    // Build metadata.
+    // Build metadata. This is a bit bloated because we also use it for the 
+    // template parameters.
     var metadata = { id: id, verified: verified,
                      diff: JSON.stringify(diff, null, 2),
                      retrieval_time: new Date(), location: location,
+                     title: 'Verification for ' + id,
                      serverRoot: serverRoot };
 
     // Highlight client document.
