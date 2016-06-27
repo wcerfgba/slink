@@ -50,7 +50,7 @@ function retrieve (location, text, pointers, serverRoot, cb) {
       body += data;
     })
     .on('end', function () {
-      console.log("Finished retrieving page: " + body.length + " characters.");
+      console.log('Finished retrieving page: ' + body.length + ' characters.');
 
       pipeline(location, text, pointers, body, serverRoot, cb);
     });

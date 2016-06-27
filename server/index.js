@@ -75,7 +75,7 @@ app.post('/new', function (req, res) {
       console.log("Redirecting to slink: ", id);
       res.redirect('/' + id + '#slink');
     };
-    var serverRoot = req.protocol + '://' + req.get('host');
+    var serverRoot = 'https://' + req.get('host');
     retrieval.retrieve(req.body.location, req.body.text, req.body.pointers,
                        serverRoot, cb);
   });
