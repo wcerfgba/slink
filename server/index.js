@@ -7,6 +7,10 @@ var RateLimiter = require('limiter').RateLimiter;
 var storage = require('./storage');
 var retrieval = require('./retrieval');
 
+// Initialize the database (if needed).
+storage.initialize();
+
+// Rate limit each IP.
 var limits = { };
 
 var app = express();

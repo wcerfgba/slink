@@ -4,6 +4,27 @@ var MongoClient = require('mongodb').MongoClient;
 
 var dburl = process.env.MONGODB_URI || 'mongodb://slink:slink@localhost:27017/slink';
 
+function initialize () {
+  MongoClient.connect(dburl, function (err, db) {
+    if (err) {
+      return console.error(err);
+    }
+
+    db.collection('counters', { strict: true }, function (err, result) {
+      if (err) {
+        db.createCollection('counters', function (err, result) {
+          result.insertOne({ _id: 'slink_id', seq: 0 }, function (err, result) {
+            db.close();
+            if (err) {
+              return console.error(err);
+            }
+          });
+        });
+      }
+    });
+  });
+}
+
 function get (id, cb) {
   MongoClient.connect(dburl, function (err, db) {
     if (err) {
@@ -72,4 +93,5 @@ function nextID (cb) {
 }
 
 
-exports = module.exports = { get: get, add: add, nextID: nextID };
+exports = module.exports = { initialize: initialize, get: get, add: add, 
+                             nextID: nextID };
