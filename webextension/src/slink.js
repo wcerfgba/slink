@@ -59,7 +59,7 @@ function getXPathForElement (el) {
    
     if (el.nodeType !== 3) { 
       xpath = el.nodeName + '[position()=' + pos + 
-                             (el.id ? ' and @id="' + el.id + '"': '') + ']' +
+                             (el.id ? ' or @id="' + el.id + '"': '') + ']' +
                             '/' + xpath;
     } else {
       xpath = 'text()[position()=' + pos + ']/' + xpath;
