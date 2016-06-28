@@ -74,13 +74,14 @@ function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
   console.log("Diffing DOMs...");
   var diff = new diffDOM({ valueDiffing: false }).diff(clientDOM, reqDOM);
   // Skip removal of attributes, script elements, link elements.
-  diff = diff.filter(function (diff) {
-    if (diff.action === 'removeAttribute') {
+  diff = diff.filter(function (change) {
+    if (change.action === 'removeAttribute') {
       return false;
     }
-    if (diff.action === 'removeElement' &&
-        (diff.element.nodeName === 'SCRIPT' ||
-         diff.element.nodeName === 'LINK')) {
+    if (change.action === 'removeElement' &&
+        (change.element.nodeName === 'SCRIPT' ||
+         change.element.nodeName === 'STYLE' ||
+         change.element.nodeName === 'LINK')) {
       return false;
     }
     return true;
