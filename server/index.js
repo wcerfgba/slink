@@ -14,6 +14,7 @@ storage.initialize();
 var limits = { };
 
 var app = express();
+app.set('trust proxy', 'uniquelocal');
 app.use(bodyParser.json({ limit: '1024kb' }));
 
 // Resolve path because express considers .. to be malicious.
