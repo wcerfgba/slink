@@ -57,11 +57,13 @@ app.post('/new', function (req, res) {
     return;
   }
 
+  // Preserve the protocol of the original page.
   var protocol = url.parse(req.body.location).protocol;
   if (protocol !== 'http:' && protocol !== 'https:') {
     res.status(400).sendFile(pubDir + '/400.html');
     return;
   }
+  var serverRoot = protocol + '//' + req.get('host');
 
   // Limit requests to 10 per minute per IP.
   if (!limits[req.ip]) {
@@ -81,11 +83,9 @@ app.post('/new', function (req, res) {
       }
 
       console.log("Redirecting to slink: ", id);
-      res.redirect('/' + id + '#slink');
+      res.redirect(serverRoot + '/' + id + '#slink');
     };
 
-    // Preserve the protocol of the original page.
-    var serverRoot = protocol + '//' + req.get('host');
     retrieval.retrieve(req.body.location, req.body.text, req.body.pointers,
                        serverRoot, cb);
   });
