@@ -118,6 +118,9 @@ p:last-child {
   white-space: pre-wrap;
   background: #a8ffa8;
   margin-bottom: 1rem;
+  height: 10rem;
+  overflow: scroll;
+  resize: vertical;
 }
 
 #footer {
