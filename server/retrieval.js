@@ -60,6 +60,11 @@ function retrieve (location, text, pointers, serverRoot, cb) {
 }
 
 function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
+  // Strip JavaScript URLs.
+  var jsURLRegex = /["']javascript:[^"']*["']/gi;
+  clientText = clientText.replace(jsURLRegex, '""');
+  reqText = reqText.replace(jsURLRegex, '""');
+
   // Build DOMs.
   console.log("Building DOMs...");
   var clientDOM = jsdom.jsdom(clientText);

@@ -112,7 +112,7 @@ function requestSlink (location, text, pointers) {
 function insertStatus (str) {
   var status = document.createElement('div');
   status.setAttribute('id', 'slink-status');
-  status.setAttribute('style', 'position: fixed; top: 0; left: 0; right: 0; background: #5d5; text-align: center;');
+  status.setAttribute('style', 'position: fixed; top: 0; left: 0; right: 0; z-index: 9999999; background: #5d5; text-align: center;');
   status.innerHTML = str;
   document.body.appendChild(status);
 }
