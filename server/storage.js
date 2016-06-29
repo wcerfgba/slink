@@ -25,7 +25,7 @@ function initialize () {
   });
 }
 
-function get (id, cb) {
+function getSlink (id, cb) {
   MongoClient.connect(dburl, function (err, db) {
     if (err) {
       return cb(err);
@@ -49,15 +49,40 @@ function get (id, cb) {
   });
 }
 
-function add (slinkText, verifyText, metadata, cb) {
+function getVerification (id, cb) {
+  MongoClient.connect(dburl, function (err, db) {
+    if (err) {
+      return cb(err);
+    }
+
+    var collection = db.collection('verify');
+    collection.findOne({ id: parseInt(id) }, function (err, result) {
+      if (err) {
+        return cb(err);
+      }
+
+      db.close();
+
+      if (!result) {
+        cb(null, '');
+      } else {
+        cb(null, result);
+      }
+    });
+
+  });
+}
+
+function addSlink (slinkText, metadata, cb) {
   MongoClient.connect(dburl, function (err, db) {
     if (err) {
       return cb(err);
     }
 
     var collection = db.collection('slink');
-    collection.insertOne({ id: metadata.id, slinkText: slinkText,
-                           verifyText: verifyText, metadata: metadata },
+    collection.insertOne({ id: metadata.id,
+                           slinkText: slinkText,
+                           metadata: metadata },
                          function (err, result) {
                            db.close();
                            if (err) {
@@ -65,6 +90,35 @@ function add (slinkText, verifyText, metadata, cb) {
                            }
                            cb(null, metadata.id);
                          });
+  });
+}
+
+function updateSlinkAndAddVerification (slinkText, metadata, verifyText, cb) {
+  MongoClient.connect(dburl, function (err, db) {
+    if (err) {
+      return cb(err);
+    }
+
+    var collection = db.collection('slink');
+    collection.findOneAndUpdate({ id: metadata.id },
+                                { $set: { slinkText: slinkText,
+                                          metadata: metadata } },
+      function (err, result) {
+        if (err) {
+          db.close();
+          return cb(err);
+        }
+
+        var collection = db.collection('verify');
+        collection.insertOne({ id: metadata.id, verifyText: verifyText },
+                             function (err, result) {
+                               db.close();
+                               if (err) {
+                                 return cb(err);
+                               }
+                               return cb(null, metadata.id);
+                             });
+      });
   });
 }
 
@@ -93,5 +147,8 @@ function nextID (cb) {
 }
 
 
-exports = module.exports = { initialize: initialize, get: get, add: add, 
-                             nextID: nextID };
+exports = module.exports = {
+  initialize: initialize, getSlink: getSlink, getVerification: getVerification,
+  addSlink: addSlink,
+  updateSlinkAndAddVerification: updateSlinkAndAddVerification, nextID: nextID
+};

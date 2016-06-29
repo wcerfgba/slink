@@ -44,51 +44,21 @@ jsdom.defaultDocumentFeatures = {
   ProcessExternalResources: false
 };
 
-function retrieve (location, text, pointers, serverRoot, cb) {
-  // GET location and send everything through the pipeline.
-  var body = '';
-  console.log("Requesting page: ", location);
-  request({ url: location, headers: { 'User-Agent': 'slink' }, gzip: true })
-    .on('data', function (data) {
-      body += data;
-    })
-    .on('end', function () {
-      console.log('Finished retrieving page: ' + body.length + ' characters.');
+// For cleaning URLs.
+var jsURLRegex = /["']javascript:[^"']*["']/gi;
+var hrefRegex = /href=["']([^"']+)["']/gi;
+var srcRegex = /src=["']([^"']+)["']/gi;
 
-      pipeline(location, text, pointers, body, serverRoot, cb);
-    });
-}
-
-function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
+function highlightAndInsert (location, clientText, pointers, serverRoot, cb) {
   // Strip JavaScript URLs.
-  var jsURLRegex = /["']javascript:[^"']*["']/gi;
   clientText = clientText.replace(jsURLRegex, '""');
-  reqText = reqText.replace(jsURLRegex, '""');
 
-  // Build DOMs.
-  console.log("Building DOMs...");
+  // Build DOM.
+  console.log("Building DOM...");
   var clientDOM = jsdom.jsdom(clientText);
-  var reqDOM = jsdom.jsdom(reqText);
 
-  // Diff DOMs. Ignore form fields.
-  console.log("Diffing DOMs...");
-  var diff = new diffDOM({ valueDiffing: false }).diff(clientDOM, reqDOM);
-  // Skip removal of attributes, script elements, link elements.
-  diff = diff.filter(function (change) {
-    if (change.action === 'removeAttribute') {
-      return false;
-    }
-    if (change.action === 'removeElement' &&
-        (change.element.nodeName === 'SCRIPT' ||
-         change.element.nodeName === 'STYLE' ||
-         change.element.nodeName === 'LINK')) {
-      return false;
-    }
-    return true;
-  });
-
-  // Determine verification status as human-readable string.
-  var verified = diff.length === 0 ? 'Yes' : 'No';
+  // Set verification as In Progress
+  var verified = 'In Progress';
 
   // Get ID from storage.
   storage.nextID(function (err, id) {
@@ -98,11 +68,8 @@ function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
 
     // Build metadata. This is a bit bloated because we also use it for the 
     // template parameters.
-    var metadata = { id: id, verified: verified,
-                     diff: JSON.stringify(diff, null, 2),
-                     retrieval_time: new Date(), location: location,
-                     title: 'Verification for ' + id,
-                     serverRoot: serverRoot };
+    var metadata = { id: id, verified: verified, slink_time: new Date(),
+                     location: location, serverRoot: serverRoot };
 
     // Highlight client document.
     console.log("Highlighting...");
@@ -132,16 +99,11 @@ function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
       clientDOM.head.appendChild(cssLink);
     }
 
-    // Build verification page.
-    var verification = verificationTemplate(metadata);
-    
     // Serialize.
     var slinkText = jsdom.serializeDocument(clientDOM);
 
     // Replace relative links.
     console.log("Replacing relative links...");
-    var hrefRegex = /href=["']([^"']+)["']/gi;
-    var srcRegex = /src=["']([^"']+)["']/gi;
     slinkText = slinkText.replace(hrefRegex, function (match, p1) {
       return 'href="' + url.resolve(location, p1) + '"';
     });
@@ -151,8 +113,100 @@ function pipeline (location, clientText, pointers, reqText, serverRoot, cb) {
 
     // Send to storage with metadata and callback.
     console.log("Storing...");
-    storage.add(slinkText, verification, metadata, cb);
+    storage.addSlink(slinkText, metadata, cb);
   });
+}
+
+function validate (id, serverRoot) {
+  var cb = function (err, data) {
+    if (err) {
+      return console.error(err);
+    }
+
+    // GET location and send everything through the pipeline.
+    var body = '';
+    console.log("Requesting page: ", data.metadata.location);
+    request({ url: data.metadata.location,
+              headers: { 'User-Agent': 'slink' }, gzip: true })
+      .on('data', function (data) {
+        body += data;
+      })
+      .on('end', function () {
+        console.log('Finished retrieving page: ' + body.length + ' characters.');
+
+        validatePipeline(data, body, serverRoot);
+      });
+  };
+  storage.getSlink(id, cb);
+}
+
+function validatePipeline (slink, reqText, serverRoot) {
+  // Strip JavaScript URLs.
+  var clientText = slink.slinkText.replace(jsURLRegex, '""');
+  reqText = reqText.replace(jsURLRegex, '""');
+
+  // Build DOMs.
+  console.log("Building DOMs...");
+  var clientDOM = jsdom.jsdom(clientText);
+  var reqDOM = jsdom.jsdom(reqText);
+
+  // Diff DOMs. Ignore form fields.
+  console.log("Diffing DOMs...");
+  var diff = new diffDOM({ valueDiffing: false }).diff(clientDOM, reqDOM);
+  // Skip removal of attributes, script elements, link elements.
+  diff = diff.filter(function (change) {
+    if (change.action === 'removeAttribute') {
+      return false;
+    }
+    if (change.action === 'removeElement' &&
+        (change.element.nodeName === 'SCRIPT' ||
+         change.element.nodeName === 'STYLE' ||
+         change.element.nodeName === 'LINK')) {
+      return false;
+    }
+    return true;
+  });
+
+  // Determine verification status as human-readable string.
+  var verified = diff.length === 0 ? 'Yes' : 'No';
+
+  // Build metadata. This is a bit bloated because we also use it for the 
+  // template parameters.
+  var metadata = { id: slink.metadata.id, verified: verified,
+                   diff: JSON.stringify(diff, null, 2),
+                   slink_time: slink.metadata.slink_time,
+                   validate_time: new Date(),
+                   location: slink.metadata.location,
+                   title: 'Verification for ' + slink.metadata.id,
+                   serverRoot: serverRoot };
+
+  // Update banner.
+  console.log("Updating banner...");
+  var bannerDOM = jsdom.jsdom(bannerTemplate(metadata));
+  var banner = bannerDOM.getElementsByClassName('slink-banner')[0];
+
+  // If we're slinking a slink, update the banner.
+  var existingBanner = clientDOM.getElementsByClassName('slink-banner')[0];
+  if (existingBanner) {
+    existingBanner.innerHTML = banner.innerHTML;
+  } else {
+    console.error('Tried to update non-existent banner!');
+  }
+
+  // Serialize.
+  var slinkText = jsdom.serializeDocument(clientDOM);
+
+  // Build verification page.
+  var verification = verificationTemplate(metadata);
+  
+  // Send to storage with metadata and callback.
+  console.log("Storing...");
+  storage.updateSlinkAndAddVerification(slinkText, metadata, verification,
+    function (err, data) {
+      if (err) {
+        return console.error(err);
+      }
+    });
 }
 
 function xPathToElement (doc, path) {
@@ -161,4 +215,5 @@ function xPathToElement (doc, path) {
   return el;
 }
 
-exports = module.exports = { retrieve: retrieve };
+exports = module.exports = { validate: validate,
+                             highlightAndInsert: highlightAndInsert };

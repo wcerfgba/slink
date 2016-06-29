@@ -23,7 +23,7 @@ var pubDir = path.resolve(__dirname + '/../website/build/');
 
 // slink IDs are just numbers.
 app.get('/:id(\\d+)', function (req, res) {
-  storage.get(req.params.id, function (err, data) {
+  storage.getSlink(req.params.id, function (err, data) {
     if (err) {
       return console.error(err);
     }
@@ -37,7 +37,7 @@ app.get('/:id(\\d+)', function (req, res) {
 });
 
 app.get('/verification/:id(\\d+)', function (req, res) {
-  storage.get(req.params.id, function (err, data) {
+  storage.getVerification(req.params.id, function (err, data) {
     if (err) {
       return console.error(err);
     }
@@ -84,10 +84,17 @@ app.post('/new', function (req, res) {
 
       console.log("Redirecting to slink: ", id);
       res.redirect(serverRoot + '/' + id + '#slink');
+
+      // Validate.
+      retrieval.validate(id, serverRoot);
     };
 
-    retrieval.retrieve(req.body.location, req.body.text, req.body.pointers,
-                       serverRoot, cb);
+    // Highlight and redirect.
+    retrieval.highlightAndInsert(req.body.location, req.body.text,
+                                 req.body.pointers, serverRoot, cb);
+
+    //retrieval.retrieve(req.body.location, req.body.text, req.body.pointers,
+    //                   serverRoot, cb);
   });
 });
 
