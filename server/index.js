@@ -84,17 +84,11 @@ app.post('/new', function (req, res) {
 
       console.log("Redirecting to slink: ", id);
       res.redirect(serverRoot + '/' + id + '#slink');
-
-      // Validate.
-      retrieval.validate(id, serverRoot);
     };
 
     // Highlight and redirect.
     retrieval.highlightAndInsert(req.body.location, req.body.text,
                                  req.body.pointers, serverRoot, cb);
-
-    //retrieval.retrieve(req.body.location, req.body.text, req.body.pointers,
-    //                   serverRoot, cb);
   });
 });
 

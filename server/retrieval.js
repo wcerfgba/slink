@@ -51,11 +51,11 @@ var srcRegex = /src=["']([^"']+)["']/gi;
 
 function highlightAndInsert (location, clientText, pointers, serverRoot, cb) {
   // Strip JavaScript URLs.
-  clientText = clientText.replace(jsURLRegex, '""');
+  var slinkText = clientText.replace(jsURLRegex, '""');
 
   // Build DOM.
   console.log("Building DOM...");
-  var clientDOM = jsdom.jsdom(clientText);
+  var slinkDOM = jsdom.jsdom(slinkText);
 
   // Set verification as In Progress
   var verified = 'In Progress';
@@ -73,12 +73,12 @@ function highlightAndInsert (location, clientText, pointers, serverRoot, cb) {
 
     // Highlight client document.
     console.log("Highlighting...");
-    var highlighted = highlight(clientDOM, pointers, xPathToElement);
+    var highlighted = highlight(slinkDOM, pointers, xPathToElement);
 
     if (highlighted.err) {
       return cb(highlighted.err);
     } else {
-      clientDOM = highlighted.dom;
+      slinkDOM = highlighted.dom;
     }
 
     // Build and insert banner and CSS link.
@@ -87,20 +87,20 @@ function highlightAndInsert (location, clientText, pointers, serverRoot, cb) {
     var banner = bannerDOM.getElementsByClassName('slink-banner')[0];
     var bannerSpacer = bannerDOM.getElementsByClassName('slink-banner-spacer')[0];
     var cssLinkText = '<link href="' + serverRoot + '/slink.css" rel="stylesheet">';
-    var cssLink = jsdom.jsdom(cssLinkText) .getElementsByTagName('link')[0];
+    var cssLink = jsdom.jsdom(cssLinkText).getElementsByTagName('link')[0];
 
     // If we're slinking a slink, update the banner.
-    var existingBanner = clientDOM.getElementsByClassName('slink-banner')[0];
+    var existingBanner = slinkDOM.getElementsByClassName('slink-banner')[0];
     if (existingBanner) {
       existingBanner.innerHTML = banner.innerHTML;
     } else {
-      clientDOM.body.insertBefore(bannerSpacer, clientDOM.body.firstChild);
-      clientDOM.body.insertBefore(banner, clientDOM.body.firstChild);
-      clientDOM.head.appendChild(cssLink);
+      slinkDOM.body.insertBefore(bannerSpacer, slinkDOM.body.firstChild);
+      slinkDOM.body.insertBefore(banner, slinkDOM.body.firstChild);
+      slinkDOM.head.appendChild(cssLink);
     }
 
     // Serialize.
-    var slinkText = jsdom.serializeDocument(clientDOM);
+    slinkText = jsdom.serializeDocument(slinkDOM);
 
     // Replace relative links.
     console.log("Replacing relative links...");
@@ -114,10 +114,13 @@ function highlightAndInsert (location, clientText, pointers, serverRoot, cb) {
     // Send to storage with metadata and callback.
     console.log("Storing...");
     storage.addSlink(slinkText, metadata, cb);
+
+    // Send to validation.
+    validate(id, clientText, serverRoot);
   });
 }
 
-function validate (id, serverRoot) {
+function validate (id, clientText, serverRoot) {
   var cb = function (err, data) {
     if (err) {
       return console.error(err);
@@ -134,23 +137,24 @@ function validate (id, serverRoot) {
       .on('end', function () {
         console.log('Finished retrieving page: ' + body.length + ' characters.');
 
-        validatePipeline(data, body, serverRoot);
+        validatePipeline(data, clientText, body, serverRoot);
       });
   };
   storage.getSlink(id, cb);
 }
 
-function validatePipeline (slink, reqText, serverRoot) {
+function validatePipeline (slink, clientText, reqText, serverRoot) {
   // Strip JavaScript URLs.
-  var clientText = slink.slinkText.replace(jsURLRegex, '""');
+  clientText = clientText.replace(jsURLRegex, '""');
   reqText = reqText.replace(jsURLRegex, '""');
 
   // Build DOMs.
   console.log("Building DOMs...");
   var clientDOM = jsdom.jsdom(clientText);
   var reqDOM = jsdom.jsdom(reqText);
+  var slinkDOM = jsdom.jsdom(slink.slinkText);
 
-  // Diff DOMs. Ignore form fields.
+  // Diff client and request DOMs. Ignore form fields.
   console.log("Diffing DOMs...");
   var diff = new diffDOM({ valueDiffing: false }).diff(clientDOM, reqDOM);
   // Skip removal of attributes, script elements, link elements.
@@ -186,7 +190,7 @@ function validatePipeline (slink, reqText, serverRoot) {
   var banner = bannerDOM.getElementsByClassName('slink-banner')[0];
 
   // If we're slinking a slink, update the banner.
-  var existingBanner = clientDOM.getElementsByClassName('slink-banner')[0];
+  var existingBanner = slinkDOM.getElementsByClassName('slink-banner')[0];
   if (existingBanner) {
     existingBanner.innerHTML = banner.innerHTML;
   } else {
@@ -194,7 +198,7 @@ function validatePipeline (slink, reqText, serverRoot) {
   }
 
   // Serialize.
-  var slinkText = jsdom.serializeDocument(clientDOM);
+  var slinkText = jsdom.serializeDocument(slinkDOM);
 
   // Build verification page.
   var verification = verificationTemplate(metadata);
