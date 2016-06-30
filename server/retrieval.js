@@ -113,10 +113,13 @@ function highlightAndInsert (location, clientText, pointers, serverRoot, cb) {
 
     // Send to storage with metadata and callback.
     console.log("Storing...");
-    storage.addSlink(slinkText, metadata, cb);
-
-    // Send to validation.
-    validate(id, clientText, serverRoot);
+    storage.addSlink(slinkText, metadata, function (err, id) {
+      if (err) {
+        return cb(err);
+      }
+      cb(null, id);
+      validate(id, clientText, serverRoot);
+    });
   });
 }
 
