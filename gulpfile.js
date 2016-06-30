@@ -50,6 +50,6 @@ gulp.task('website_scss', function () {
 });
 
 gulp.task('website_assets', function () {
-  gulp.src('website/src/assets/**')
+  gulp.src('website/src/assets/**', { dot: true })
     .pipe(gulp.dest('website/build/'));
 });
