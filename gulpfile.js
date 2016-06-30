@@ -7,12 +7,16 @@ var wrap = require('gulp-wrap');
 
 gulp.task('default', [ 'website' ]);
 
-gulp.task('webextension', [ 'webextension_unpacked', 'webextension_firefox',
-                            'webextension_chrome' ]);
+gulp.task('webextension', [ 'webextension_unpacked', 'webextension_zipped' ]);
 
 gulp.task('webextension_unpacked', function () {
   return gulp.src('webextension/src/**')
           .pipe(gulp.dest('webextension/build/unpacked/'));
+});
+
+gulp.task('webextension_zipped', [ 'webextension_unpacked' ], function () {
+  run('cd webextension/build/unpacked/ ; rm ../slink.zip ; zip -r ../slink.zip *')
+    .exec();
 });
 
 gulp.task('webextension_firefox', [ 'webextension_unpacked' ], function () {
