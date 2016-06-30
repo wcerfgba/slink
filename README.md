@@ -1,9 +1,7 @@
 # s(election)link
 
-slink allows you to link to a selected segment of a Web page.
-
-```put image here```
-
+slink allows you to link to a selected segment of a Web page. See 
+[slink.to](https://slink.to/) for more information.
 
 ## Use
 
@@ -47,7 +45,7 @@ slink allows you to link to a selected segment of a Web page.
 
 All files in `exern/` are copyright their respective authors.
 
-All files in `artwork/` and `website/` represtent marketing IP for the official 
+All files in `artwork/` and `website/` represent marketing IP for the official 
 slink.to server, and as such are copyright John Preston 2016.
 
 All other files are licensed under
