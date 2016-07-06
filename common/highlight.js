@@ -26,6 +26,19 @@ function highlight(document, pointers, xPathToElement) {
     pointers.end.offset = tmpOffset;
   }
 
+  if (!pointers.start.offset || pointers.start.offset < 0 ||
+      startEl.length === 0) {
+    pointers.start.offset = 0;
+  } else if (startEl.length > 0 && startEl.length <= pointers.start.offset) {
+    pointers.start.offset = startEl.length - 1;
+  }
+  if (!pointers.end.offset || pointers.end.offset < 0 ||
+      endEl.length === 0) {
+    pointers.end.offset = 0;
+  } else if (endEl.length > 0 && endEl.length <= pointers.end.offset) {
+    pointers.end.offset = endEl.length - 1;
+  }
+
   if (startEl === endEl && startEl.nodeType === 3) {
     startEl = startEl.splitText(pointers.start.offset);
     startEl.splitText(pointers.end.offset - pointers.start.offset);
