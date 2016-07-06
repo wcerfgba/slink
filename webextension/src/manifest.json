@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "slink",
-  "version": "1.0",
+  "version": "1.0.2",
   "description": "selection links - see http://slink.to",
   "author": "John Preston (https://github.com/wcerfgba)",
   "icons": {
@@ -21,11 +21,9 @@
     "storage"
   ],
   "background":  {
-    "scripts": [ "slink_background.js" ],
-    "persistent": false
+    "scripts": [ "slink_background.js" ]
   },
   "browser_action": {
-    "browser_style": true,
     "default_title":  "slink",
     "default_icon": {
       "16": "logo-16.png",
